@@ -18,6 +18,9 @@ app.use(
 );
 app.use(cookieParser());
 app.use("/api", mainRouter)
+app.use((_req,res)=>{
+  res.status(404).send("Undefined path.")
+})
 
 export const InitServer = async () => {
   app.listen(env_variables.PORT, ()=> console.log("Server up, listening at port: ",env_variables.PORT))
