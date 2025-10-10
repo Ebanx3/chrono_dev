@@ -12,7 +12,7 @@ export interface IUser extends Document {
   isVerifiedEmail: boolean;
   verificationEmailCode?: string | null;
   projects: Array<{ id: Types.ObjectId; name: string }>;
-  posts: Array<{ id: Types.ObjectId; name: string }>;
+  posts: Array<{ id: Types.ObjectId; title: string }>;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -96,7 +96,7 @@ const UserSchema = new Schema<IUser>(
             ref: "Post",
             required: true,
           },
-          name: {
+          title: {
             type: String,
             required: true,
           },
