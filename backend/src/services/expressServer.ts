@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 import mainRouter from "./router"
 import { env_variables } from "../config/environment";
+import { showRequest } from "../middlewares/showRequest";
 
 export const app = express();
 
@@ -17,6 +18,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(showRequest);
 app.use("/api", mainRouter)
 app.use((_req,res)=>{
   res.status(404).send("Undefined path.")
