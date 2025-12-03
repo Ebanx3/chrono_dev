@@ -17,6 +17,7 @@ type Post = {
 }
 
 type User = {
+    _id:string;
     username: string;
     email:string;
     urlAvatar?:string;
@@ -26,4 +27,10 @@ type User = {
     links:Link[];
     projects: Project[];
     posts:Post[];
+}
+
+type ServerResponse<T> = {
+    success:boolean;
+    message: string;
+    data?: T;
 }

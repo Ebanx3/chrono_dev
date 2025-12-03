@@ -18,8 +18,7 @@ export const validateLoginFields = async (data: object) => {
     return await schema.parseAsync(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
+      return error.issues.map((issue) => issue.message).join("\n\n");
     }
     return "Error inesperado al validar los campos.";
   }

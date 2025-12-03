@@ -50,6 +50,14 @@ const getUserById = async (userId: string) => {
   }
 };
 
-const getUsers = async () => {};
+const getUsers = async () => {
+  try {
+    return await User.find();
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+
+};
 
 export const UserModel = { create, getUserById, getUserByUsername, getUsers };
