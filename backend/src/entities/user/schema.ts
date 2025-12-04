@@ -15,6 +15,20 @@ export interface IUser extends Document {
   posts: Array<{ id: Types.ObjectId; title: string }>;
 }
 
+const LinkSchenma = new Schema(
+  {
+    site: {
+      type: String,
+      required: true,
+    },
+    link: {
+      type: String,
+      required: true,
+    },
+  },
+  {_id: false}
+);
+
 const UserSchema = new Schema<IUser>(
   {
     email: {
@@ -50,19 +64,9 @@ const UserSchema = new Schema<IUser>(
         type: [String],
         default: []
     },
-    links:{
-        type: [
-            {
-                site:{
-                    type: String,
-                    required:true
-                },
-                link:{
-                    type:String,
-                    required:true
-                }
-            }
-        ]
+    links: {
+      type: [LinkSchenma],
+      default: [],
     },
     isVerifiedEmail: {
       type: Boolean,

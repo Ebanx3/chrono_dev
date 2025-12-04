@@ -29,6 +29,19 @@ const loginSchema = z.object({
     )
 });
 
+const updateUserSchema = z.object({
+  title: z.string().max(100, "El título no puede contener más de 100 caracteres").optional(),
+  description: z.string().max(500, "La descripción no puede contener más de 500 caracteres").optional(),
+  links: z.array(
+    z.object({
+      site: z.string().max(100, "El nombre del sitio no puede contener más de 100 caracteres"),
+      link: z.string().url("El enlace debe ser una URL válida"),
+    })
+  ).optional(),
+  stack: z.array(z.string().max(20, "Cada tecnología no puede contener más de 20 caracteres")).optional(),
+  urlAvatar: z.string().url("La URL del avatar debe ser una URL válida").optional(),
+});
+
 export const validateBodyRegister = async (body: object) => {
   try {
     return await registerSchema.parseAsync(body);
@@ -44,6 +57,18 @@ export const validateBodyRegister = async (body: object) => {
 export const validateBodyLogin = async (body: object) => {
   try {
     return await loginSchema.parseAsync(body);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const messages = error.issues.map((issue) => issue.message);
+      return messages.join("\n");
+    }
+    return "Error inesperado al validar los campos.";
+  }
+};
+
+export const validateBodyUpdateUser = async (body: object) => {
+  try {
+    return await updateUserSchema.parseAsync(body);
   } catch (error) {
     if (error instanceof z.ZodError) {
       const messages = error.issues.map((issue) => issue.message);

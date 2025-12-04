@@ -21,5 +21,5 @@ export const useFetch = <T,>(url: string) => {
     fetchData();
   }, []);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch: fetchData };
 };

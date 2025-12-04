@@ -1,5 +1,5 @@
 import { connectDB } from "./services/database";
-import { InitServer } from "./services/expressServer";
+import { InitServer } from "./services/server";
 import { setWebSockets } from "./services/websockets";
 
 (async () => {

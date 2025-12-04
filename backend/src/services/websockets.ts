@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import http from "node:http";
 import { env_variables } from "../config/environment";
-import { app } from "./expressServer";
+import { app } from "./server";
 
 const httpServer = http.createServer(app);
 

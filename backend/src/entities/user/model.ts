@@ -57,7 +57,25 @@ const getUsers = async () => {
     console.log(error);
     return null;
   }
-
 };
 
-export const UserModel = { create, getUserById, getUserByUsername, getUsers };
+type UpdateData = {
+  title?: string;
+  description?: string;
+  links?: Array<{ site: string; link: string }>;
+  stack?: string[];
+};
+
+const updateUser = async (userId: string, updateData: UpdateData) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    });
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+    return "Error al actualizar el usuario";
+  }
+};
+
+export const UserModel = { create, getUserById, getUserByUsername, getUsers, updateUser };

@@ -10,6 +10,7 @@ type Env_variables = {
   TOKEN_NAME:string;
   EMAIL_USER:string;
   EMAIL_PASSWORD:string;
+  CLOUDINARY_SECRET:string;
 };
 
 const env_variables:Env_variables = {
@@ -21,7 +22,8 @@ const env_variables:Env_variables = {
   TOKEN_EXPIRATION_TIME: process.env.TOKEN_EXPIRATION_TIME ?? "15 days",
   TOKEN_NAME: process.env.TOKEN_NAME ?? 'chrono_dev_authentication_token',
   EMAIL_USER: process.env.EMAIL_USER!,
-  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD!
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD!,
+  CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET!
 };
 
 if (!env_variables.MONGO_URI) {
@@ -35,5 +37,8 @@ if (!env_variables.EMAIL_USER)
 
 if (!env_variables.EMAIL_PASSWORD)
   throw Error("EMAIL_PASSWORD environment variable is required");
+
+if (!env_variables.CLOUDINARY_SECRET)
+  throw Error("CLOUDINARY_SECRET environment variable is required");
 
 export { env_variables };

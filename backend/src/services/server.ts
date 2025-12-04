@@ -14,7 +14,7 @@ app.use(
   cors({
     origin: env_variables.FRONTEND,
     credentials: true,
-    methods: ["GET", "POST", "PUT"],
+    methods: ["GET", "POST", "PATCH"],
   })
 );
 app.use(cookieParser());

@@ -4,29 +4,53 @@ import { FormInput } from "../../Forms/FormInput";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { FormButton } from "../../Forms/FormButton";
 import { EditUserLinks } from "./EditUserLinks";
+import { validateUpdateUserFields } from "./ValidateUpdateUserFields";
+import { toast } from "sonner";
+import { updateUser } from "../../../api/user";
 
 interface Props {
-    closeModal: () => void;
-    user: User;
+  closeModal: () => void;
+  user: User;
+  refetchUser: () => void;
 }
 
-export const EditUserModal = ({ user, closeModal }: Props) => {
+export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
   const [title, setTitle] = useState(user.title || "");
   const [description, setDescription] = useState(user.description || "");
   const [links, setLinks] = useState<Link[]>(user.links || []);
-  const [stack, setStack] = useState<string[]>(user.stack || []);
+  const [stack, setStack] = useState<string>(user.stack.join(", ") || "");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Lógica para manejar la edición del usuario
+   
+    const validatedData = await validateUpdateUserFields({
+      title,
+      description,
+      links,
+      stack: stack.split(",").map((tech) => tech.trim()).filter((tech) => tech !== ""),
+    });
+    if (typeof validatedData === "string") {
+      toast.error(validatedData, { style: { whiteSpace: "pre-line" } });
+      return;
+    }
+
     setIsLoading(true);
+    const result = await updateUser(validatedData);
+    setIsLoading(false);
+
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
+    toast.success("Usuario actualizado correctamente");
+    refetchUser();
+    closeModal();
   };
 
   return (
     <div className="fixed top-0 left-0 w-screen bg-black/20 h-screen backdrop-blur-sm z-100 flex justify-center items-center">
       <Form handleSubmit={handleSubmit}>
-
         <FormInput
           label="Título"
           name="title"
@@ -52,8 +76,8 @@ export const EditUserModal = ({ user, closeModal }: Props) => {
           name="stack"
           type="text"
           placeholder="Ingresa tu stack separado por comas"
-          inputValue={stack.join(", ")}
-          setInputValue={(value) => setStack(value.split(",").map((tech) => tech.trim()))}
+          inputValue={stack}
+          setInputValue={setStack}
         />
 
         <EditUserLinks links={links} setLinks={setLinks} />
@@ -64,7 +88,13 @@ export const EditUserModal = ({ user, closeModal }: Props) => {
           </div>
         ) : (
           <div className="flex justify-between">
-            <button className="bg-stone-200 p-2 rounded-md cursor-pointer hover:bg-stone-300" type="button" onClick={closeModal}>Cancelar</button>
+            <button
+              className="bg-stone-200 p-2 rounded-md cursor-pointer hover:bg-stone-300"
+              type="button"
+              onClick={closeModal}
+            >
+              Cancelar
+            </button>
             <FormButton label="Guardar cambios" />
           </div>
         )}
