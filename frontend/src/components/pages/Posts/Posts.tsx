@@ -2,7 +2,6 @@ import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { useFetch } from "../../../hooks/useFetch";
 import { PostCard } from "./PostCard";
 
-
 export const Posts = () => {
   const { data, loading, error } = useFetch<Post[]>("/post");
 
