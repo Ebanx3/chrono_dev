@@ -1,4 +1,4 @@
-import User, { IUser } from "./schema";
+import User, { PostStatKey } from "./schema";
 import { hashPassword } from "../../services/encryptPass";
 import { randomBytes } from "node:crypto";
 
@@ -78,4 +78,35 @@ const updateUser = async (userId: string, updateData: UpdateData) => {
   }
 };
 
-export const UserModel = { create, getUserById, getUserByUsername, getUsers, updateUser };
+const increasePostField = async ({
+  userId,
+  fieldToIncrease,
+  amount = 1,
+}: {
+  userId: string;
+  fieldToIncrease: PostStatKey;
+  amount?: number;
+}) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $inc: { [`postStats.${fieldToIncrease}`]: amount } },
+      {
+        new: true,
+      }
+    );
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+    return "Error al actualizar el usuario";
+  }
+};
+
+export const UserModel = {
+  create,
+  getUserById,
+  getUserByUsername,
+  getUsers,
+  updateUser,
+  increasePostField
+};

@@ -80,10 +80,10 @@ export const EditUserLinks = ({ links, setLinks }: { links: Link[], setLinks: Re
         {links.map((link, index) => (
           <div
             key={index}
-            className="grid grid-cols-3 gap-2 mb-2 min-h-8 text-sm items-center text-center"
+            className="flex gap-2 mb-2 text-sm"
           >
-            <span>{link.site}</span>
-            <span>{link.link}</span>
+            <span className="text-stone-600 w-1/7">{link.site}:</span>
+            <span className="flex-1">{link.link}</span>
             <button
               onClick={() => removeLink(index)}
               className="text-red-600 flex items-center m-auto hover:text-red-400 cursor-pointer"
