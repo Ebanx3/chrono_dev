@@ -25,9 +25,9 @@ export const PostCard = ({ post }: { post: Post }) => {
         Publicado por <span className="font-medium">{post.authorUsername}</span>
       </p>
 
-      <p className="text-sm text-stone-500 line-clamp-3 mb-3 whitespace-pre-line">
+      {/* <p className="text-sm text-stone-500 line-clamp-3 mb-3 whitespace-pre-line">
         {post.content}
-      </p>
+      </p> */}
 
       <div className="flex justify-between items-center">
         <div className="flex flex-wrap gap-2">
