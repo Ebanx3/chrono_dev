@@ -3,7 +3,7 @@ import NoAvatar from "../../../assets/no-avatar.png";
 
 export const UserCard = ({ user }: { user: User }) => {
   return (
-    <Link to={`/usuario/${user._id}`} className="hover:bg-stone-100 w-56">
+    <Link to={`/usuarios/${user._id}`} className="hover:bg-stone-100 w-56">
     <article className="flex flex-col items-center border border-stone-300 rounded-lg p-4 ">
        <img
           src={user.urlAvatar ?? NoAvatar}

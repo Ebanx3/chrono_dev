@@ -1,39 +1,26 @@
-import { LoaderSVG } from "../../../assets/LoaderSVG";
-import { useFetch } from "../../../hooks/useFetch";
-import { PostCard } from "./PostCard";
+import { useState } from "react";
+import { CreateButton } from "../../Layout/CreateButton";
+import { PostsContainer } from "./PostsContainer";
+import { CreatePostModal } from "./CreatePostModal";
 
 export const Posts = () => {
-  const { data, loading, error } = useFetch<Post[]>("/post");
+  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
 
-   if (error) {
-    return (
-      <div className="text-center">
-        Hubo un error intentando traer las publicaciones.
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <>
-        <title>Publicaciones</title>
-        <div className="w-full flex justify-center mt-10">
-          <LoaderSVG />
-        </div>
-      </>
-    );
-  }
-
-
-  return ( <>
-        <title>Publicaciones</title>
-        <div className="max-w-[1160px] m-auto grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 p-4">
-          {data &&
-            data.map((post) => (
-              <>
-                <PostCard key={post._id} post={post} />
-              </>
-            ))}
-        </div>
-      </>);
+  return (
+    <>
+      <title>Publicaciones</title>
+      <main className="max-w-[1160px] m-auto flex flex-col">
+        <CreateButton
+          label="Nueva publicación"
+          onClickMethod={() => {
+            setShowCreatePostModal(true);
+          }}
+        />
+        <PostsContainer />
+        {showCreatePostModal && (
+          <CreatePostModal closeModal={() => setShowCreatePostModal(false)} />
+        )}
+      </main>
+    </>
+  );
 };

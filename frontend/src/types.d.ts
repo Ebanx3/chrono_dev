@@ -9,18 +9,24 @@ type Link = {
   link: string;
 };
 
-type Post = {
+type PostRecognition = {
+    mentorship_received: string[];
+  documentation_received: string[];
+  innovation_received: string[];
+  resolution_received: string[];
+  inspiration_received: string[];
+}
+
+type Post = PostRecognition & {
   _id: string;
   title: string;
   content: string;
   authorId: string;
+  authorUsername: string;
   tags: string[];
-  likes_received: number;
-  mentorship_received: number;
-  documentation_received: number;
-  innovation_received: number;
-  resolution_received: number;
-  inspiration_received: number;
+  likes_received: string[];
+  comments_received: string[];
+  createdAt: string;
 };
 
 type User = {

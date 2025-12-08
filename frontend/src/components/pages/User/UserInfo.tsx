@@ -16,13 +16,13 @@ export const UserInfo = ({
 
   return (
     <>
-      <section className="p-4 relative flex-1 flex flex-col justify-between">
+      <section className="p-4 relative flex-1 flex flex-col justify-between ">
         {canEdit && (
           <EditUserInfoButton showEditMenu={() => setShowEditMenu(true)} />
         )}
         <div>
-          <h2 className="text-2xl font-bold text-stone-800">{username}</h2>
-          <h3 className="text-stone-600 text-lg font-medium mb-2">
+          <h2 className="text-3xl font-bold text-emerald-700 ">{username}</h2>
+          <h3 className="text-stone-500 text-xl font-medium mb-2">
             {title || "Sin título"}
           </h3>
           <p className="mt-4 whitespace-pre-wrap text-stone-500">
