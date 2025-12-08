@@ -31,12 +31,12 @@ export const Projects = () => {
         <main className="max-w-[1160px] m-auto flex flex-col">
           <CreateButton label='Nueva publicación' onClickMethod={()=>{}}/>
           <div className=" flex flex-col gap-6 p-4">
-          {data &&
-            data.map((post) => (
-              <>
-                {/* <PostCard key={post._id} post={post} /> */}
-              </>
-            ))}
+          {data && null}
+            {/* // data.map((post) => (
+            //   <>
+            //     <PostCard key={post._id} post={post} />
+            //   </>
+            // ))} */}
         </div>
         </main>
       </>);

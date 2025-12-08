@@ -7,6 +7,7 @@ import { validateCreatePost } from "./ValidateCreatePost";
 import { toast } from "sonner";
 import { createPost } from "../../../api/post";
 import { useNavigate } from "react-router-dom";
+import { ContentPreview } from "./ContentPreview";
 
 export const CreatePostModal = ({
   closeModal,
@@ -96,6 +97,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <FormButton label="Publicar" />
           </div>
         )}
+        <ContentPreview content={content}/>
       </Form>
     </div>
   );
