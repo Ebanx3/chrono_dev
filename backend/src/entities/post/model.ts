@@ -15,7 +15,7 @@ const create = async ({
 }) => {
   try {
     const newPost = new Post({ authorId, authorUsername, title, content,tags });
-    await newPost.save();
+    return await newPost.save();
   } catch (error) {
     console.error("Error al crear una nueva publicacion:", error);
     return "Error inesperado al crear la publicacion";

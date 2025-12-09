@@ -2,7 +2,8 @@ import { Link, useParams } from "react-router-dom";
 import { useFetch } from "../../../hooks/useFetch";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { RecognitionButton } from "./RecognitionButton";
-import ReactMarkdown from "react-markdown";
+import "./prose.css";
+import { MarkdownRenderer } from "./MarjdownRenderer";
 
 export const Post = () => {
   const { postId } = useParams();
@@ -48,8 +49,8 @@ export const Post = () => {
           <span className="text-xs text-stone-500">
             {new Date(data!.createdAt).toLocaleDateString()}
           </span>
-          <div className="rounded-lg p-4 bg-white overflow-y-auto prose prose-stone max-w-none">
-            <ReactMarkdown>{data?.content}</ReactMarkdown>
+          <div className="prose p-4">
+            <MarkdownRenderer content={data!.content} />
           </div>
 
           <div className="self-end flex gap-4">
@@ -85,9 +86,9 @@ export const Post = () => {
             />
           </div>
         </article>
-        <p className="whitespace-pre-line text-xs text-stone-400 absolute bottom-0 left-0">
+        {/* <p className="whitespace-pre-line text-xs text-stone-400 absolute bottom-0 left-0">
           {JSON.stringify(data, null, 2)}
-        </p>
+        </p> */}
       </main>
     </>
   );
