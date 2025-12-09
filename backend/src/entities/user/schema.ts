@@ -82,27 +82,22 @@ const postStatsSchema = new Schema(
       default: 0,
     },
     mentorship_received: {
-      // “Mentoría técnica”
       type: Number,
       default: 0,
     },
     documentation_received: {
-      // “Documentación clara”
       type: Number,
       default: 0,
     },
     innovation_received: {
-      // “Idea innovadora”
       type: Number,
       default: 0,
     },
     resolution_received: {
-      // “Resolución efectiva”
       type: Number,
       default: 0,
     },
     inspiration_received: {
-      // “Inspiración creativa”
       type: Number,
       default: 0,
     },
@@ -144,6 +139,30 @@ const projectStatsSchema = new Schema(
   },
   { _id: false }
 );
+
+const projectsAtUserSchema = new Schema({
+  id: {
+    type: Schema.Types.ObjectId,
+    ref: "Project",
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+},{_id:false});
+
+const postsAtUserSchema = new Schema({
+  id: {
+    type: Schema.Types.ObjectId,
+    ref: "Post",
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+},{_id:false});
 
 const UserSchema = new Schema<IUser>(
   {
@@ -193,39 +212,15 @@ const UserSchema = new Schema<IUser>(
       required: true,
     },
     projects: {
-      type: [
-        {
-          id: {
-            type: Schema.Types.ObjectId,
-            ref: "Project",
-            required: true,
-          },
-          name: {
-            type: String,
-            required: true,
-          },
-        },
-      ],
+      type: [projectsAtUserSchema],
       default: [],
     },
     posts: {
-      type: [
-        {
-          id: {
-            type: Schema.Types.ObjectId,
-            ref: "Post",
-            required: true,
-          },
-          title: {
-            type: String,
-            required: true,
-          },
-        },
-      ],
+      type: [postsAtUserSchema],
       default: [],
     },
-    postsStats: { type: postStatsSchema, default:{} },
-    projectsStats: { type: projectStatsSchema, default:{} },
+    postsStats: { type: postStatsSchema, default: {} },
+    projectsStats: { type: projectStatsSchema, default: {} },
   },
   {
     timestamps: true,

@@ -42,7 +42,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       return;
     }
     toast.success("Publicación creada correctamente");
-    nav(`/publicacion/${result.data}`)
+    nav(`/publicaciones/${result.data}`)
     closeModal();
   };
 

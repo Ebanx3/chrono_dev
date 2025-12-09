@@ -3,6 +3,7 @@ import { PostModel, RecognitionType } from "./model";
 import { UserModel } from "../user/model";
 import { RequestWithData, ServerResponse } from "../../types";
 import { validateBodyCreatePost } from "./zod";
+import { ObjectId } from "mongoose";
 
 const getAllPosts = async (_req: Request, res: Response<ServerResponse>) => {
   try {
@@ -65,16 +66,13 @@ const createPost = async (
       return;
     }
 
-    const updatedUser = await UserModel.increasePostField({
-      userId: req.user!.id,
-      fieldToIncrease: "created",
-    });
+    const updatedUser = await UserModel.addNewPostToUser({userId: req.user!.id, postId:(newPost._id as ObjectId).toString(), postTitle: newPost.title  });
     if (typeof updatedUser === "string") {
       res.status(400).json({ success: false, message: updatedUser });
       return;
     }
 
-    res.status(201).json({ success: true, message: "Ok" });
+    res.status(201).json({ success: true, message: "Ok", data:(newPost._id as ObjectId).toString() });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
