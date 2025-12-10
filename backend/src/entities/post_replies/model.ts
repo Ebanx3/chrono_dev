@@ -29,4 +29,4 @@ const getPostRepliesModel = async () => {
     }  
 }
 
-export const ReplyPost = {createPostReplyModel, getPostRepliesModel}
+export const ReplyPostModel = {createPostReplyModel, getPostRepliesModel}

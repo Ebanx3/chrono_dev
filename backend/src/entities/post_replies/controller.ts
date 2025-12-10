@@ -1,5 +1,5 @@
 import {Request, Response} from 'express'
-import { ReplyPost } from './model'
+import { ReplyPostModel } from './model'
 import { RequestWithData, ServerResponse } from '../../types'
 import { validateBodyCreatePostReply } from './zod'
 
@@ -12,7 +12,7 @@ const createPostReply = async (req: RequestWithData, res: Response<ServerRespons
             return;
         }
 
-        const newPostreply = await ReplyPost.createPostReplyModel({
+        const newPostreply = await ReplyPostModel.createPostReplyModel({
             authorUsername: req.user!.username,
             authorId: req.user!.id,
             postId: req.params.postId,
@@ -36,7 +36,7 @@ const createPostReply = async (req: RequestWithData, res: Response<ServerRespons
 
 const getAllPostsRely = async (_req: Request, res: Response<ServerResponse>) => {
   try {
-    const postReply = await ReplyPost.getPostRepliesModel();
+    const postReply = await ReplyPostModel.getPostRepliesModel();
 
     if (!postReply) {
       res
