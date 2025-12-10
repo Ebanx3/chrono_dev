@@ -79,7 +79,7 @@ const createPost = async (
   }
 };
 
-const addOrRemoveLike = async (
+const addOrRemoveRecognition = async (
   req: RequestWithData,
   res: Response<ServerResponse>
 ) => {
@@ -119,7 +119,7 @@ const addOrRemoveLike = async (
     //esto hay que corregirlo
     const updatedUser = await UserModel.increasePostField({
       userId: postUpdated.authorId.toString(),
-      fieldToIncrease: "likes_received",
+      fieldToIncrease: `${(recognitionType as RecognitionType)}_received`,
     });
     if (typeof updatedUser === "string") {
       res.status(400).json({ success: false, message: updatedUser });
@@ -137,5 +137,5 @@ export const PostController = {
   getAllPosts,
   createPost,
   getPostById,
-  addOrRemoveLike,
+  addOrRemoveRecognition,
 };

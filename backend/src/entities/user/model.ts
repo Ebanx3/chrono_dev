@@ -117,7 +117,7 @@ const increasePostField = async ({
   try {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $inc: { [`postStats.${fieldToIncrease}`]: amount } },
+      { $inc: { [`postsStats.${fieldToIncrease}`]: amount } },
       {
         new: true,
       }
