@@ -16,3 +16,7 @@
   background-size: 40px 40px;
   animation: movePattern 20s linear infinite;
 }
+
+html {
+  scrollbar-gutter: stable;
+}

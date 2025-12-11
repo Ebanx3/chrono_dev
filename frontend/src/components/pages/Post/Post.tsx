@@ -34,7 +34,7 @@ export const Post = () => {
   return (
     <>
       <title>{data!.title}</title>
-      <main className="max-w-[1160px] min-h-screen m-auto p-4">
+      <main className="max-w-[1160px] min-h-[calc(100vh-72px)] m-auto p-4">
         <article className="flex flex-col my-4 border-b pb-8 border-stone-300">
           <h1 className="text-2xl font-bold text-stone-800">{data!.title}</h1>
           <span className="text-stone-500">
