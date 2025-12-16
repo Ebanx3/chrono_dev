@@ -2,6 +2,10 @@ import {Request, Response} from 'express'
 import { ReplyPostModel } from './model'
 import { RequestWithData, ServerResponse } from '../../types'
 import { validateBodyCreatePostReply } from './zod'
+import {UserModel} from '../user/model'
+import Post from '../post/schema'
+
+
 
 const createPostReply = async (req: RequestWithData, res: Response<ServerResponse>) => {
     try{
@@ -26,6 +30,18 @@ const createPostReply = async (req: RequestWithData, res: Response<ServerRespons
             });
             return;
         }   
+
+        const post = await  Post.findById(req.params.postId).select("authorId");
+
+        if(!post) {
+            res.status(404).json({ success: false, message: "Post not found" });
+            return;
+        }
+        await UserModel.increasePostField({
+          userId: post.authorId.toString(),
+          fieldToIncrease: "comments_received",
+        });
+
         res.status(201).json({ success: true, message: "Ok" });
     }
     catch(err){
