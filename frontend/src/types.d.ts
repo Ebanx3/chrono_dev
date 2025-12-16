@@ -1,8 +1,35 @@
-type Project = {
+type Iask = {
+  title: string;
+  description: string;
+  status: "pending" | "in-progress" | "done";
+  assignedTo?: { userId: Types.ObjectId; username: string };
+  dueDate?: Date;
+}
+
+type Module = {
   name: string;
   details: string;
-  id: string;
-};
+  isPublic: boolean;
+  allowedRoles: string[]; // ej: ["admin", "editor"]
+  allowedUsers: { userId: Types.ObjectId; username: string }[];
+  tasks: ITask[];
+  connections: { targetModuleId: Types.ObjectId; type: string }[]; // ej: "dependency", "related"
+  projectId: Types.ObjectId;
+}
+
+type Project = {
+  _id:string;
+  name: string;
+  details: string;
+  founderId: Types.ObjectId;
+  founderUsername: string;
+  techs: string[];
+  members: { userId: Types.ObjectId; username: string; role: string }[];
+  pendingMembers: { userId: Types.ObjectId; username: string }[];
+  modules: Types.ObjectId[]; // relación con módulos
+  roles: Array<string>;
+  isPublic:boolean;
+}
 
 type Link = {
   site: string;

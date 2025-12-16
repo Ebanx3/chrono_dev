@@ -1,0 +1,37 @@
+import { z } from "zod/v4";
+
+const createProjectSchema = z.object({
+  name: z
+    .string("Es necesario proporcionar un nombre válido para el proyecto")
+    .min(3, "El nombre del proyecto debe contener al menos 3 caracteres")
+    .max(100, "El nombre del proyecto no puede contener más de 100 caracteres"),
+
+  details: z
+    .string("Es necesario proporcionar detalles válidos del proyecto")
+    .min(10, "Los detalles deben contener al menos 10 caracteres")
+    .max(2000, "Los detalles no pueden superar los 2000 caracteres"),
+
+  techs: z
+    .array(
+      z
+        .string()
+        .min(2, "Cada tecnología debe tener al menos 2 caracteres")
+        .max(30, "Cada tecnología no puede superar los 30 caracteres")
+    )
+    .min(1, "Debes especificar al menos una tecnología")
+    .max(20, "No puedes agregar más de 20 tecnologías"),
+
+  isPublic: z.boolean().default(true), // por defecto los proyectos son públicos
+});
+
+export const validateBodyCreateProject = async (body: object) => {
+  try {
+    return await createProjectSchema.parseAsync(body);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const messages = error.issues.map((issue) => issue.message);
+      return messages.join("\n");
+    }
+    return "Error inesperado al validar los campos.";
+  }
+};

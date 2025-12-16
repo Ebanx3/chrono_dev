@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Form } from "../../Forms/Form";
-import { FormInput } from "../../Forms/FormInput";
+import { Form } from "../../ui/Forms/Form";
+import { FormInput } from "../../ui/Forms/FormInput";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
-import { FormButton } from "../../Forms/FormButton";
+import { FormButton } from "../../ui/Forms/FormButton";
 import { EditUserLinks } from "./EditUserLinks";
 import { validateUpdateUserFields } from "./ValidateUpdateUserFields";
 import { toast } from "sonner";

@@ -105,6 +105,33 @@ const addNewPostToUser = async ({
   }
 };
 
+const addNewProjectToUser = async ({
+  userId,
+  projectId,
+  projectName,
+}: {
+  userId: string;
+  projectId: string;
+  projectName: string;
+}) => {
+  try {
+    const updateData = {
+      $push: { posts: { id: projectId, name: projectName } },
+      $inc: { "projectsStats.created": 1 },
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,       // devuelve el documento actualizado
+      upsert: false,   // no crea el usuario si no existe
+    });
+
+    return updatedUser;
+  } catch (error) {
+    console.error(error);
+    return "Error al actualizar el usuario";
+  }
+};
+
 const increasePostField = async ({
   userId,
   fieldToIncrease,
@@ -136,5 +163,6 @@ export const UserModel = {
   getUsers,
   updateUser,
   increasePostField,
-  addNewPostToUser
+  addNewPostToUser,
+  addNewProjectToUser
 };

@@ -5,9 +5,9 @@ import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { login } from "../../../api/authentication";
 import { useUserContext } from "../../../hooks/useUserContext";
 import { toast } from "sonner";
-import { Form } from "../../../components/Forms/Form";
-import { FormInput } from "../../Forms/FormInput";
-import { FormButton } from "../../Forms/FormButton";
+import { Form } from "../../ui/Forms/Form";
+import { FormInput } from "../../ui/Forms/FormInput";
+import { FormButton } from "../../ui/Forms/FormButton";
 
 export const Login = () => {
   const [username, setUsername] = useState("");

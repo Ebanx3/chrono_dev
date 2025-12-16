@@ -1,4 +1,4 @@
-import { FormInput } from "../../Forms/FormInput";
+import { FormInput } from "../../ui/Forms/FormInput";
 
 export const EditStack = ({
   stack,
