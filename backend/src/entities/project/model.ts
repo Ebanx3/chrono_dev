@@ -41,4 +41,13 @@ const getAll = async () => {
   }
 };
 
-export const ProjectModel = { create, getAll };
+const getById = async (projectId: string) => {
+  try {
+    return await Project.findById(projectId);
+  } catch (error) {
+    console.error("Error al obtener el proyecto:", error);
+    return "Error inesperado al obtener el proyecto";
+  } 
+};
+
+export const ProjectModel = { create, getAll, getById };

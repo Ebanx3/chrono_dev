@@ -2,7 +2,7 @@ type Iask = {
   title: string;
   description: string;
   status: "pending" | "in-progress" | "done";
-  assignedTo?: { userId: Types.ObjectId; username: string };
+  assignedTo?: { userId: string; username: string };
   dueDate?: Date;
 }
 
@@ -11,22 +11,22 @@ type Module = {
   details: string;
   isPublic: boolean;
   allowedRoles: string[]; // ej: ["admin", "editor"]
-  allowedUsers: { userId: Types.ObjectId; username: string }[];
+  allowedUsers: { userId: string; username: string }[];
   tasks: ITask[];
-  connections: { targetModuleId: Types.ObjectId; type: string }[]; // ej: "dependency", "related"
-  projectId: Types.ObjectId;
+  connections: { targetModuleId: string; type: string }[]; // ej: "dependency", "related"
+  projectId: string;
 }
 
 type Project = {
   _id:string;
   name: string;
   details: string;
-  founderId: Types.ObjectId;
+  founderId: string;
   founderUsername: string;
   techs: string[];
-  members: { userId: Types.ObjectId; username: string; role: string }[];
-  pendingMembers: { userId: Types.ObjectId; username: string }[];
-  modules: Types.ObjectId[]; // relación con módulos
+  members: { userId: string; username: string; role: string }[];
+  pendingMembers: { userId: string; username: string }[];
+  modules: string[]; // relación con módulos
   roles: Array<string>;
   isPublic:boolean;
 }
@@ -56,18 +56,59 @@ type Post = PostRecognition & {
   createdAt: string;
 };
 
+type PostStats = {
+  created: number;
+  likes_received: number;
+  comments_received: number;
+
+  // Reacciones especializadas
+  mentorship_received: number; // “Mentoría técnica”
+  documentation_received: number; // “Documentación clara”
+  innovation_received: number; // “Idea innovadora”
+  resolution_received: number; // “Resolución efectiva”
+  inspiration_received: number; // “Inspiración creativa”
+}
+
+type ProjectStats = {
+  created: number;
+  projects_completed: number;
+  projects_completed_as_founder: number;
+  tasks_completed: number;
+
+  // Reconocimientos por tareas
+  mentor_recognitions: number; // "Mentoría técnica"
+  resolver_recognitions: number; // "Resolución efectiva"
+  quality_recognitions: number; // "Documentación clara / calidad"
+  innovation_recognitions: number; // "Idea innovadora"
+  team_support_recognitions: number; // "Apoyo al equipo"
+
+  // Reconocimientos por proyectos
+  leadership_recognitions: number; // "Liderazgo"
+  documentation_recognitions: number; // "Documentador oficial"
+  collaboration_recognitions: number; // "Colaboración destacada"
+  impact_recognitions: number; // "Aporte clave"
+  inspiration_recognitions: number; // "Inspirador"
+}
+
 type User = {
-  _id: string;
-  username: string;
   email: string;
+  username: string;
+  password: string;
   urlAvatar?: string;
   title?: string;
   description?: string;
-  stack: string[];
-  links: Link[];
-  projects: Project[];
-  posts: Post[];
-};
+  stack: Array<string>;
+  links: Array<{ site: string; link: string }>;
+  isVerifiedEmail: boolean;
+  verificationEmailCode?: string | null;
+  projects: Array<{ id: string; name: string }>;
+  posts: Array<{ id: string; title: string }>;
+  postsStats: PostStats;
+  projectsStats: ProjectStats;
+  followers: Array<string>;
+  users_following: Array<string>;
+  projects_following: Array<string>;
+}
 
 type ServerResponse<T> = {
   success: boolean;

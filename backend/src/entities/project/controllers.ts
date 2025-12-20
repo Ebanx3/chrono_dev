@@ -53,4 +53,20 @@ const getProjects = async ( req:RequestWithData, res:Response<ServerResponse>) =
   }
 };
 
-export const ProjectController = { createProject, getProjects }
+const getProjectById = async ( req:Request, res:Response<ServerResponse>) => {
+  try {
+    const { projectId } = req.params; 
+    const project = await ProjectModel.getById(projectId);
+
+    if (!project) {
+      res.status(404).json({ success: false, message: "Project not found" });
+      return;
+    }
+    res.status(200).json({ success: true, message: "Ok", data: project });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const ProjectController = { createProject, getProjects, getProjectById };

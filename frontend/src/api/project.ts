@@ -29,3 +29,19 @@ export const createProject = async ({
   }
 };
 
+export const getProjectById = async (id: string) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${id}`, { 
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+    });
+    const json = (await data.json()) as ServerResponse<Project>;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error al intentar conectar con el servidor",
+    };
+  } 
+};

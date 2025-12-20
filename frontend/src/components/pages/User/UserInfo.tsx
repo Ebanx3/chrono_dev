@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { EditUserInfoButton } from "./EditUserInfoButton";
 import { EditUserModal } from "./EditUserModal";
+import { FollowersButton } from "./FollowersButton";
+
 
 export const UserInfo = ({
   user,
@@ -11,7 +13,7 @@ export const UserInfo = ({
   canEdit: boolean;
   refetchUser: () => void;
 }) => {
-  const { username, title, description, stack } = user;
+  const { username, title, description, stack, followers } = user;
   const [showEditMenu, setShowEditMenu] = useState(false);
 
   return (
@@ -21,7 +23,10 @@ export const UserInfo = ({
           <EditUserInfoButton showEditMenu={() => setShowEditMenu(true)} />
         )}
         <div>
-          <h2 className="text-3xl font-bold text-emerald-700 ">{username}</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-3xl font-bold text-emerald-700 ">{username} </h2>
+            <FollowersButton followers={followers} />
+          </div>
           <h3 className="text-stone-500 text-xl font-medium mb-2">
             {title || "Sin título"}
           </h3>

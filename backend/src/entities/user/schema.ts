@@ -51,6 +51,9 @@ export interface IUser extends Document {
   posts: Array<{ id: Types.ObjectId; title: string }>;
   postsStats: IPostStats;
   projectsStats: IProjectStats;
+  followers: Array<Types.ObjectId>;
+  users_following: Array<Types.ObjectId>;
+  projects_following: Array<Types.ObjectId>;
 }
 
 const LinkSchenma = new Schema(
@@ -221,6 +224,21 @@ const UserSchema = new Schema<IUser>(
     },
     postsStats: { type: postStatsSchema, default: {} },
     projectsStats: { type: projectStatsSchema, default: {} },
+    followers: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
+    users_following: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
+    projects_following: {
+      type: [Schema.Types.ObjectId],
+      ref: "Project",
+      default: [],
+    },
   },
   {
     timestamps: true,

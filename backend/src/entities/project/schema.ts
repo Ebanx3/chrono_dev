@@ -8,6 +8,12 @@ interface ITask {
   dueDate?: Date;
 }
 
+interface INode {
+  id: string;
+  data: { label: string };
+  position: { x: number; y: number };
+}
+
 export interface IModule extends Document {
   name: string;
   details: string;
@@ -17,6 +23,7 @@ export interface IModule extends Document {
   tasks: ITask[];
   connections: { targetModuleId: Types.ObjectId; type: string }[]; // ej: "dependency", "related"
   projectId: Types.ObjectId;
+  node: INode;
 }
 
 export interface IProject extends Document {
@@ -30,6 +37,7 @@ export interface IProject extends Document {
   modules: Types.ObjectId[]; // relación con módulos
   roles: Array<string>;
   isPublic:boolean;
+  followers: Array<Types.ObjectId>;
 }
 
 const taskSchema = new Schema<ITask>(
@@ -75,7 +83,15 @@ const moduleSchema = new Schema<IModule>(
     allowedUsers: [allowedUSersSchema],
     tasks: [taskSchema],
     connections: [connectionssSchema],
-    projectId: {type: Schema.Types.ObjectId, ref:"Project", required:true }
+    projectId: {type: Schema.Types.ObjectId, ref:"Project", required:true },
+    node: {
+      id: { type: String, required: true },
+      data: { label: { type: String, required: true } },
+      position: {
+        x: { type: Number, required: true },
+        y: { type: Number, required: true },
+      },
+    },
   },
   { timestamps: true }
 );
@@ -108,7 +124,12 @@ const projectSchema = new Schema<IProject>(
     pendingMembers: [pendingMembersSchema],
     modules: [{ type: Schema.Types.ObjectId, ref: "Module" }],
     roles: { type: [String], default: [] },
-    isPublic: {type:Boolean}
+    isPublic: {type:Boolean},
+    followers: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
   },
   { timestamps: true }
 );

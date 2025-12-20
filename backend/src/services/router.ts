@@ -9,6 +9,6 @@ const router = Router();
 router.use('/user', UserRouter)
 router.use('/post', PostRouter)
 router.use('/project', ProjectRouter)
-router.use('/post-replies', PostRepliesRouter)
+router.use('/post-reply', PostRepliesRouter)
 
 export default router;
