@@ -1,3 +1,12 @@
+type PostReply = {
+    authorUsername: string;
+    authorId: Types.ObjectId;
+    postId: Types.ObjectId;
+    content: string
+    likes_received: string[];
+}
+
+
 type Iask = {
   title: string;
   description: string;
