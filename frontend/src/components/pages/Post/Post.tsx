@@ -4,6 +4,8 @@ import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { RecognitionButton } from "./RecognitionButton";
 import "./prose.css";
 import { MarkdownRenderer } from "./MarjdownRenderer";
+import { PostReplies } from "./PostReplies";
+import { ReplyPost } from "./ReplyPost";
 
 export const Post = () => {
   const { postId } = useParams();
@@ -34,7 +36,7 @@ export const Post = () => {
   return (
     <>
       <title>{data!.title}</title>
-      <main className="max-w-[1160px] min-h-[calc(100vh-72px)] m-auto p-4">
+      <main className="max-w-[1160px] min-h-[calc(100vh-72px)] m-auto p-4 flex flex-col">
         <article className="flex flex-col my-4 border-b pb-8 border-stone-300">
           <h1 className="text-2xl font-bold text-stone-800">{data!.title}</h1>
           <span className="text-stone-500">
@@ -86,9 +88,8 @@ export const Post = () => {
             />
           </div>
         </article>
-        {/* <p className="whitespace-pre-line text-xs text-stone-400 absolute bottom-0 left-0">
-          {JSON.stringify(data, null, 2)}
-        </p> */}
+        <ReplyPost postId={postId!} />
+        <PostReplies postId={postId!} />
       </main>
     </>
   );

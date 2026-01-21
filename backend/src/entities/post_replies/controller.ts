@@ -12,7 +12,8 @@ const createPostReply = async (
   try {
     const { postId } = req.params;
     const validatedBody = await validateBodyCreatePostReply(req.body);
-
+    console.log(validatedBody);
+    console.log(req.body);
     if (typeof validatedBody === "string") {
       res.status(400).json({ success: false, message: validatedBody });
       return;

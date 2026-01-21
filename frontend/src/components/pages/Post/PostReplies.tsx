@@ -1,10 +1,9 @@
-import {useParams } from "react-router-dom";
+
 import { useFetch } from "../../../hooks/useFetch";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
 import "./prose.css";
 
-export const PostReplies = () => {
-  const { postId } = useParams();
+export const PostReplies = ({ postId }: { postId: string }) => {
   const { error, loading } = useFetch<PostReply[]>(`/post-reply/${postId}`);
 
   if (error) {
