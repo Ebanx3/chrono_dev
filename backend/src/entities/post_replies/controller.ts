@@ -51,12 +51,13 @@ const createPostReply = async (
   }
 };
 
-const getAllPostsRely = async (
-  _req: Request,
+const getAllPostsRelies = async (
+  req: Request,
   res: Response<ServerResponse>
 ) => {
   try {
-    const postReply = await ReplyPostModel.getPostRepliesModel();
+    const { postId } = req.params;
+    const postReply = await ReplyPostModel.getPostRepliesModel(postId);
 
     if (!postReply) {
       res
@@ -77,5 +78,5 @@ const getAllPostsRely = async (
 
 export const ReplyPostController = {
   createPostReply,
-  getAllPostsRely,
+  getAllPostsRelies,
 };
