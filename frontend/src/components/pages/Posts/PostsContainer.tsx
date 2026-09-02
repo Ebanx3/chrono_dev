@@ -7,7 +7,7 @@ export const PostsContainer = () => {
 
   if (error) {
     return (
-      <div className="text-center">
+      <div className="text-center text-slate-400">
         Hubo un error intentando traer las publicaciones.
       </div>
     );

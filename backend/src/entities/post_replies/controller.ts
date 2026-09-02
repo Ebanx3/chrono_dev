@@ -19,7 +19,7 @@ const createPostReply = async (
       return;
     }
 
-    const newPostreply = await ReplyPostModel.createPostReplyModel({
+    const newPostreply = await ReplyPostModel.createPostReply({
       authorUsername: req.user!.username,
       authorId: req.user!.id,
       postId: postId,
@@ -52,15 +52,15 @@ const createPostReply = async (
   }
 };
 
-const getAllPostsRelies = async (
+const getAllPostReplies = async (
   req: Request,
   res: Response<ServerResponse>
 ) => {
   try {
     const { postId } = req.params;
-    const postReply = await ReplyPostModel.getPostRepliesModel(postId);
+    const postReplies = await ReplyPostModel.getPostReplies(postId);
 
-    if (!postReply) {
+    if (!postReplies) {
       res
         .status(404)
         .json({
@@ -69,8 +69,7 @@ const getAllPostsRelies = async (
         });
       return;
     }
-
-    res.status(201).json({ success: true, message: "Ok", data: postReply });
+    res.status(201).json({ success: true, message: "Ok", data: postReplies });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -79,5 +78,5 @@ const getAllPostsRelies = async (
 
 export const ReplyPostController = {
   createPostReply,
-  getAllPostsRelies,
+  getAllPostReplies,
 };

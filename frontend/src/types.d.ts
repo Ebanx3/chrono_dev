@@ -47,3 +47,12 @@ type ServerResponse<T> = {
   message: string;
   data?: T;
 };
+
+type Reply = {
+  _id: string;
+  postId: string;
+  authorId: string;
+  authorUsername: string;
+  content: string;
+  createdAt: string;
+};

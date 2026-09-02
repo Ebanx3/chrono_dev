@@ -1,6 +1,6 @@
 import PostReplies from "./schema";
 
-const createPostReplyModel = async ({
+const createPostReply = async ({
   authorUsername,
   authorId,
   postId,
@@ -25,9 +25,9 @@ const createPostReplyModel = async ({
   }
 };
 
-const getPostRepliesModel = async (postId: string) => {
+const getPostReplies = async (postId: string) => {
   try {
-    return await PostReplies.find({ where: { postId } }).sort({
+    return await PostReplies.find({ postId }).sort({
       createdAt: -1,
     });
   } catch (err) {
@@ -36,4 +36,4 @@ const getPostRepliesModel = async (postId: string) => {
   }
 };
 
-export const ReplyPostModel = { createPostReplyModel, getPostRepliesModel };
+export const ReplyPostModel = { createPostReply, getPostReplies };
