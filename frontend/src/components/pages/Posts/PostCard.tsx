@@ -12,36 +12,36 @@ export const PostCard = ({ post }: { post: Post }) => {
   return (
     <Link
       to={`/publicaciones/${post._id}`}
-      className="block border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white hover:bg-stone-100 border-stone-400"
+      className="block border rounded-lg p-4 hover:scale-101 transition-all transition duration-450 ease-in-out border-slate-800"
     >
       <div className="flex justify-between items-start">
-        <h2 className="text-lg font-semibold text-stone-800">{post.title}</h2>
-        <span className="text-xs text-stone-500">
+        <h2 className="text-lg font-semibold text-slate-100">{post.title}</h2>
+        <span className="text-xs text-slate-400">
           {new Date(post.createdAt).toLocaleDateString()}
         </span>
       </div>
 
-      <p className="text-sm text-stone-600 mb-2">
+      <p className="text-sm text-slate-300 mb-2">
         Publicado por <span className="font-medium">{post.authorUsername}</span>
       </p>
 
-      <p className="text-sm text-stone-500 line-clamp-3 mb-3 whitespace-pre-line">
+      {/* <p className="text-sm text-stone-500 line-clamp-3 mb-3 whitespace-pre-line">
         {post.content}
-      </p>
+      </p> */}
 
       <div className="flex justify-between items-center">
         <div className="flex flex-wrap gap-2">
           {post.tags?.map((tag) => (
             <span
               key={tag}
-              className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-full"
+              className="text-xs text-slate-400 py-1 rounded-full"
             >
               #{tag}
             </span>
           ))}
         </div>
 
-        <div className="flex gap-4 mt-3 text-stone-500">
+        <div className="flex gap-4 mt-3 text-slate-400">
           <span className="flex items-center gap-1">
             <LikeEmptySVG /> {post.likes_received.length}
           </span>

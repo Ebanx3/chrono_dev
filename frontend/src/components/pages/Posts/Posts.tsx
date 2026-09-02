@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CreateButton } from "../../Layout/CreateButton";
+import { CreateButton } from "../../ui/CreateButton";
 import { PostsContainer } from "./PostsContainer";
 import { CreatePostModal } from "./CreatePostModal";
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ShowPasswordButton } from "./ShowPasswordButton";
+import { HelpIcon } from "../HelpIcon";
 
 interface InputProps {
   name: string;
@@ -8,6 +9,7 @@ interface InputProps {
   placeholder: string;
   inputValue: string;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  helpIconContent?:string;
 }
 
 export const FormInput = ({
@@ -16,6 +18,7 @@ export const FormInput = ({
   label,
   placeholder,
   inputValue,
+  helpIconContent,
   setInputValue,
 }: InputProps) => {
   const [isPassVisible, setIsPassVisible] = useState(false);
@@ -24,7 +27,7 @@ export const FormInput = ({
     return (
       <div className="relative mb-4 flex flex-col">
         <>
-          <label htmlFor={name} className="text-stone-500 font-medium text-sm ">
+          <label htmlFor={name} className="text-slate-300 font-medium text-sm ">
             {label}
           </label>
           <input
@@ -32,7 +35,7 @@ export const FormInput = ({
             id={name}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            className="border border-stone-300 rounded-md focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 p-2 transition focus:outline-none"
+            className="border border-slate-700 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition focus:outline-none"
             placeholder={placeholder}
           />
         </>
@@ -46,15 +49,16 @@ export const FormInput = ({
 
   return (
     <>
-      <label htmlFor={name} className="text-stone-500 font-medium text-sm">
+      <label htmlFor={name} className="text-slate-400 font-medium text-sm flex gap-2">
         {label}
+        {helpIconContent && <HelpIcon content={helpIconContent} />}
       </label>
       <input
         type={type}
         id={name}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        className="border border-stone-300 rounded-md focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 p-2 transition mb-4 focus:outline-none"
+        className="border border-slate-700 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition mb-4 focus:outline-none text-slate-300"
         placeholder={placeholder}
       />
     </>

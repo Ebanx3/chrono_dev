@@ -33,19 +33,19 @@ export const Post = () => {
     <>
       <title>{data!.title}</title>
       <main className="max-w-[1160px] m-auto p-4">
-        <article className="flex flex-col my-4 border-b pb-8 border-stone-300">
-          <h1 className="text-2xl font-bold text-stone-800">{data!.title}</h1>
-          <span className="text-stone-500">
+        <article className="flex flex-col my-4 border-b pb-8 border-slate-700">
+          <h1 className="text-2xl font-bold text-slate-100">{data!.title}</h1>
+          <span className="text-slate-300">
             Publicado por:{" "}
             <Link
               to={`/usuarios/${data!.authorId}`}
-              className="font-medium text-emerald-600 hover:border-b-2"
+              className="font-medium text-purple-500 hover:border-b-2"
             >
               {data?.authorUsername}
             </Link>
           </span>
-          <span className="text-xs text-stone-500">{new Date(data!.createdAt).toLocaleDateString()}</span>
-          <p className="mt-10 whitespace-pre-line">{data?.content}</p>
+          <span className="text-xs text-slate-400">{new Date(data!.createdAt).toLocaleDateString()}</span>
+          <p className="mt-10 whitespace-pre-line text-slate-400">{data?.content}</p>
           <div className="self-end flex gap-4">
             <RecognitionButton post={data!} recognitionType="likes" users={data!.likes_received}/>
             <RecognitionButton post={data!} recognitionType="documentation" users={data!.documentation_received}/>

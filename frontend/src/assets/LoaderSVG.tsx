@@ -1,7 +1,7 @@
 export const LoaderSVG = () => {
   return (
     <svg
-      fill="#059669"
+      fill="oklch(55.8% 0.288 302.321)"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       className=" size-10"

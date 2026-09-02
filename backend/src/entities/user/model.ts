@@ -78,6 +78,60 @@ const updateUser = async (userId: string, updateData: UpdateData) => {
   }
 };
 
+const addNewPostToUser = async ({
+  userId,
+  postId,
+  postTitle,
+}: {
+  userId: string;
+  postId: string;
+  postTitle: string;
+}) => {
+  try {
+    const updateData = {
+      $push: { posts: { id: postId, title: postTitle } },
+      $inc: { "postsStats.created": 1 },
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,       // devuelve el documento actualizado
+      upsert: false,   // no crea el usuario si no existe
+    });
+
+    return updatedUser;
+  } catch (error) {
+    console.error(error);
+    return "Error al actualizar el usuario";
+  }
+};
+
+const addNewProjectToUser = async ({
+  userId,
+  projectId,
+  projectName,
+}: {
+  userId: string;
+  projectId: string;
+  projectName: string;
+}) => {
+  try {
+    const updateData = {
+      $push: { posts: { id: projectId, name: projectName } },
+      $inc: { "projectsStats.created": 1 },
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,       // devuelve el documento actualizado
+      upsert: false,   // no crea el usuario si no existe
+    });
+
+    return updatedUser;
+  } catch (error) {
+    console.error(error);
+    return "Error al actualizar el usuario";
+  }
+};
+
 const increasePostField = async ({
   userId,
   fieldToIncrease,
@@ -90,7 +144,7 @@ const increasePostField = async ({
   try {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $inc: { [`postStats.${fieldToIncrease}`]: amount } },
+      { $inc: { [`postsStats.${fieldToIncrease}`]: amount } },
       {
         new: true,
       }
@@ -108,5 +162,7 @@ export const UserModel = {
   getUserByUsername,
   getUsers,
   updateUser,
-  increasePostField
+  increasePostField,
+  addNewPostToUser,
+  addNewProjectToUser
 };

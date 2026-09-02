@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Form } from "../../Forms/Form";
-import { FormInput } from "../../Forms/FormInput";
+import { Form } from "../../ui/Forms/Form";
+import { FormInput } from "../../ui/Forms/FormInput";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { Link, useNavigate } from "react-router-dom";
 import { useUserContext } from "../../../hooks/useUserContext";
 import { validateRegisterFields } from "./ValidateRrgisterFields";
 import { toast } from "sonner";
 import { register } from "../../../api/authentication";
-import { FormButton } from "../../Forms/FormButton";
+import { FormButton } from "../../ui/Forms/FormButton";
 
 export const Register = () => {
   const [username, setUsername] = useState("");

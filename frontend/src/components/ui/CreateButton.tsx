@@ -7,7 +7,7 @@ export const CreateButton = ({
 }) => {
   return (
     <button
-      className="self-end border text-emerald-700 py-1 px-2 rounded-md hover:bg-emerald-700 hover:text-white cursor-pointer"
+      className="self-end text-purple-400 py-1 px-2 rounded-md hover:bg-purple-800 hover:text-white cursor-pointer text-sm transition underline"
       onClick={onClickMethod}
     >
       {label}

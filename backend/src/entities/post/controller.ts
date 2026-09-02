@@ -74,7 +74,7 @@ const createPost = async (
       return;
     }
 
-    res.status(201).json({ success: true, message: "Ok" });
+    res.status(201).json({ success: true, message: "Ok", data: newPost!.toObject()._id });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });

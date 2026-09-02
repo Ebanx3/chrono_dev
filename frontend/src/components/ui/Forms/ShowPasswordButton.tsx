@@ -1,5 +1,5 @@
-import { ClosedEye } from "../../assets/ClosedEye";
-import { OpenEye } from "../../assets/OpenEye";
+import { ClosedEye } from "../../../assets/ClosedEye";
+import { OpenEye } from "../../../assets/OpenEye";
 
 interface Props {
   isPassVisible: boolean;

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Form } from "../../Forms/Form";
-import { FormInput } from "../../Forms/FormInput";
+import { Form } from "../../ui/Forms/Form";
+import { FormInput } from "../../ui/Forms/FormInput";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
-import { FormButton } from "../../Forms/FormButton";
+import { FormButton } from "../../ui/Forms/FormButton";
 import { validateCreatePost } from "./ValidateCreatePost";
 import { toast } from "sonner";
 import { createPost } from "../../../api/post";
@@ -41,7 +41,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       return;
     }
     toast.success("Publicación creada correctamente");
-    nav(`/publicacion/${result.data}`)
+    nav(`/publicaciones/${result.data}`)
     closeModal();
   };
 
@@ -76,6 +76,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           name="title"
           type="text"
           placeholder="Ingresa etiquetas separadas por comas"
+          helpIconContent="Lista de etiquetas relacionadas con la publicación, separadas por comas."
           inputValue={tags}
           setInputValue={setTags}
         />

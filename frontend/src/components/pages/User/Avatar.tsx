@@ -43,7 +43,7 @@ export const Avatar = ({
   };
 
   return (
-    <div className="size-64 rounded-full border border-stone-200 overflow-hidden relative group">
+    <div className="size-64 rounded-full border border-slate-800 overflow-hidden relative group">
       <img
         src={avatarUrl ?? NoAvatar}
         alt="user avatar"
@@ -75,11 +75,11 @@ export const Avatar = ({
       )}
       {showModalConfirmChange && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
-            <h2 className="text-lg font-semibold mb-4">
+          <div className="bg-slate-800 p-6 rounded shadow-md max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4 text-slate-200">
               Confirmar cambio de avatar
             </h2>
-            <p className="mb-4">
+            <p className="mb-4 text-slate-300">
               ¿Estás seguro de que deseas cambiar tu avatar?
             </p>
             <div className="flex justify-end gap-4">
@@ -90,7 +90,7 @@ export const Avatar = ({
               ) : (
                 <>
                   <button
-                    className="px-4 py-2 bg-stone-200 rounded hover:bg-stone-300 cursor-pointer"
+                    className="px-4 py-2 bg-slate-600 text-slate-300 rounded hover:bg-slate-500 cursor-pointer"
                     onClick={() => {
                       setAvatarUrl(previousUrl || undefined);
                       setShowModalConfirmChange(false);
@@ -99,7 +99,7 @@ export const Avatar = ({
                     Cancelar
                   </button>
                   <button
-                    className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 cursor-pointer"
+                    className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 cursor-pointer"
                     onClick={uploadAvatar}
                   >
                     Confirmar

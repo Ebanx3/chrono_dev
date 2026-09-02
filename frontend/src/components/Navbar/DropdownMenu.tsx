@@ -32,35 +32,35 @@ export const DropdownMenu = () => {
       {/* Botón */}
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex justify-center border border-stone-300 rounded-md px-4 py-2 bg-white text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none w-24 text-center"
+        className="inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-purple-400 hover:bg-slate-900 focus:outline-none w-24 text-center"
       >
         {user!.username}
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-stone-200 focus:outline-none z-10">
+        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-slate-900 ring-1 ring-slate-700 focus:outline-none z-10">
           <div className="py-1 flex flex-col">
             <Link
               to={`/usuarios/${user!._id}`}
-              className="px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 text-left"
+              className="px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 text-left"
             >
               Perfil
             </Link>
             <Link
               to={`/proyectos/usuario/${user!._id}`}
-              className="px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 text-left"
+              className="px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 text-left"
             >
               Mis proyectos
             </Link>
             <Link
               to={`/publicaciones/usuario/${user!._id}`}
-              className="px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 text-left"
+              className="px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 text-left"
             >
               Mis publicaciones
             </Link>
             <button
-              className="px-4 py-2 text-sm text-red-600 hover:bg-red-100 text-left"
+              className="px-4 py-2 text-sm text-red-300 hover:bg-slate-800 text-left cursor-pointer"
               onClick={handleLogout}
             >
               Salir

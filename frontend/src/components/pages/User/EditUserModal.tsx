@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Form } from "../../Forms/Form";
-import { FormInput } from "../../Forms/FormInput";
+import { Form } from "../../ui/Forms/Form";
+import { FormInput } from "../../ui/Forms/FormInput";
 import { LoaderSVG } from "../../../assets/LoaderSVG";
-import { FormButton } from "../../Forms/FormButton";
+import { FormButton } from "../../ui/Forms/FormButton";
 import { EditUserLinks } from "./EditUserLinks";
 import { validateUpdateUserFields } from "./ValidateUpdateUserFields";
 import { toast } from "sonner";
@@ -60,7 +60,7 @@ export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
           setInputValue={setTitle}
         />
 
-        <label className="text-stone-500 font-medium text-sm">
+        <label className="text-slate-400 font-medium text-sm">
           Descripción
         </label>
         <textarea
@@ -68,7 +68,7 @@ export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="border border-stone-300 rounded-md focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 p-2 transition mb-4 focus:outline-none resize-none field-sizing-content"
+          className="border text-slate-300 border-slate-700 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition mb-4 focus:outline-none resize-none field-sizing-content"
         ></textarea>
 
         <FormInput
@@ -89,7 +89,7 @@ export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
         ) : (
           <div className="flex justify-between">
             <button
-              className="bg-stone-200 p-2 rounded-md cursor-pointer hover:bg-stone-300"
+              className="bg-slate-700 p-2 rounded-md cursor-pointer text-slate-400 hover:bg-slate-600"
               type="button"
               onClick={closeModal}
             >

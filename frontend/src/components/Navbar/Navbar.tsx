@@ -12,6 +12,7 @@ export const Navbar = () => {
       <NavBarLink to="Proyectos"/>
       <NavBarLink to="Publicaciones"/>
       <NavBarLink to="Usuarios"/>
+      
 
       {user === null ? (
         <NavLink
@@ -23,7 +24,10 @@ export const Navbar = () => {
           Ingresar
         </NavLink>
       ) : (
+        <>
+        <span className="border-l border-slate-600 h-6"></span>
         <DropdownMenu />
+        </>
       )}
     </nav>
   );

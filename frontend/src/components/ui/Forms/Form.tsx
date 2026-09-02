@@ -6,13 +6,11 @@ interface FormProps {
 
 export const Form = ({ children, handleSubmit}: FormProps) => {
   return (
-    <>
       <form
-        className="p-6 shadow-md hover:shadow-lg transition-shadow rounded-xl flex flex-col bg-white flex-1 max-w-lg"
+        className="p-6  rounded-xl flex flex-col flex-1 max-w-lg bg-slate-800"
         onSubmit={handleSubmit}
       >
         {children}
       </form>
-    </>
   );
 };

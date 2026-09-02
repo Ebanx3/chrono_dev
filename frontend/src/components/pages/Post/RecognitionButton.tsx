@@ -36,10 +36,10 @@ interface RecognitionButtonProps {
 
 const solveButtonStyle = (isActive:boolean, isDisabled:boolean) => {
   if(isDisabled){
-    return "";
+    return "text-slate-400";
   }
-  if(isActive) return "bg-emerald-100 text-emerald-600 cursor-pointer";
-  return "hover:bg-stone-200 text-stone-600 cursor-pointer"
+  if(isActive) return "text-purple-400 hover:bg-purple-950 cursor-pointer";
+  return "hover:bg-slate-800 text-slate-400 cursor-pointer"
 }
 
 export const RecognitionButton = ({
