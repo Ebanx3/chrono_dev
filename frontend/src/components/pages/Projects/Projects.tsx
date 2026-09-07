@@ -8,7 +8,6 @@ export const Projects = () => {
   return (
     <>
       <title>Proyectos</title>
-      <main className="max-w-[1160px] m-auto flex flex-col">
         <CreateButton
           label="Nueva proyecto"
           onClickMethod={() => {
@@ -17,7 +16,6 @@ export const Projects = () => {
         />
         <ProjectsContainer />
         {showCreateProjectModal && <CreateProjectModal closeModal={()=> setShowCreateProjecttModal(false)}/>}
-      </main>
     </>
   );
 };

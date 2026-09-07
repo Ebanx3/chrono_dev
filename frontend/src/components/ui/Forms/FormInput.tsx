@@ -49,7 +49,7 @@ export const FormInput = ({
 
   return (
     <>
-      <label htmlFor={name} className="text-slate-400 font-medium text-sm flex gap-2">
+      <label htmlFor={name} className="text-slate-400 font-medium text-sm flex gap-2 my-1">
         {label}
         {helpIconContent && <HelpIcon content={helpIconContent} />}
       </label>

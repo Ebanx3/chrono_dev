@@ -7,7 +7,7 @@ interface FormProps {
 export const Form = ({ children, handleSubmit}: FormProps) => {
   return (
       <form
-        className="p-6  rounded-xl flex flex-col flex-1 max-w-lg bg-slate-800"
+        className="p-6 rounded-xl flex flex-col flex-1 max-w-lg bg-slate-800"
         onSubmit={handleSubmit}
       >
         {children}

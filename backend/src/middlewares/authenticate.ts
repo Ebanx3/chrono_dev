@@ -11,24 +11,52 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
+  authenticateUser(req, res, next, true);
+};
+
+export const authenticateOptional = (
+  req: RequestWithData,
+  res: Response,
+  next: NextFunction
+) => {
+  authenticateUser(req, res, next, false);
+};
+
+const authenticateUser = (
+  req: RequestWithData,
+  res: Response,
+  next: NextFunction,
+  required: boolean
+) => {
   try {
     const token = req.cookies[envs.TOKEN_NAME];
 
     if (!token) {
-       res.status(401).json(UnauthorizedJson);
-       return
+      if (required) {
+        res.status(401).json(UnauthorizedJson);
+        return;
+      }
+
+      next();
+      return;
     }
 
     const userData = verifyToken(token);
+
     if (!userData) {
-      res
-        .clearCookie(envs.TOKEN_NAME)
-        .status(401)
-        .json(UnauthorizedJson);
-       return
+      res.clearCookie(envs.TOKEN_NAME);
+
+      if (required) {
+        res.status(401).json(UnauthorizedJson);
+        return;
+      }
+
+      next();
+      return;
     }
 
     req.user = userData as Pick<IUser, 'username' | 'id' | 'email'>;
+    console.log(req.user);
     next();
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });

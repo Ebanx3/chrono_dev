@@ -1,19 +1,18 @@
-import { Project } from "./schema";
+import { Types } from "mongoose";
+import { Permission, Project } from "./schema";
 
 const create = async ({
   name,
   details,
   techs,
   isPublic,
-  founderId,
-  founderUsername,
+  founder,
 }: {
   name: string;
   details: String;
   techs: string[];
   isPublic: boolean;
-  founderId: string;
-  founderUsername: string;
+  founder: string;
 }) => {
   try {
     const newPost = new Project({
@@ -21,8 +20,13 @@ const create = async ({
       details,
       techs,
       isPublic,
-      founderId,
-      founderUsername,
+      founder,
+      members: [],
+    });
+    newPost.members.push({
+      user: new Types.ObjectId(founder),
+      role: "founder",
+      permissions: Object.values(Permission),
     });
     return await newPost.save();
   } catch (error) {
@@ -31,10 +35,11 @@ const create = async ({
   }
 };
 
-
 const getAll = async () => {
   try {
-    return await Project.find();
+    return await Project.find()
+      .populate("founder", "username")
+      .sort({ createdAt: -1 });
   } catch (error) {
     console.error("Error al obtener las publicaciones:", error);
     return "Error inesperado al obtener las publicaciones";
@@ -43,11 +48,27 @@ const getAll = async () => {
 
 const getById = async (projectId: string) => {
   try {
-    return await Project.findById(projectId);
+    return await Project.findById(projectId)
+      .populate("founder", "username")
+      .populate("members.user", "username");
   } catch (error) {
     console.error("Error al obtener el proyecto:", error);
     return "Error inesperado al obtener el proyecto";
-  } 
+  }
 };
 
-export const ProjectModel = { create, getAll, getById };
+const addResource = async (projectId: string, resource: { name: string; url: string }) => {
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "Proyecto no encontrado";
+    }
+    project.resources.push(resource);
+    return await project.save();
+  } catch (error) {
+    console.error("Error al agregar el recurso:", error);
+    return "Error inesperado al agregar el recurso";
+  }
+};
+
+export const ProjectModel = { create, getAll, getById, addResource };

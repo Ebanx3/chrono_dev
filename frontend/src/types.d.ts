@@ -1,28 +1,48 @@
 type Project = {
+  _id: string;
   name: string;
   details: string;
-  id: string;
+  founder: { _id: string; username: string };
+  techs: string[];
+  members: ProjectMember[];
+  pendingMembers: ProjectPendingMember[];
+  modules: string[];
+  roles: string[];
+  isPublic: boolean;
+  followers: string[];
+  createdAt: string;
+  updatedAt: string;
+  resources: Link[];
+};
+
+type ProjectMember = {
+  user: { _id: string; username: string };
+  role: string;
+};
+
+type PendingMember = {
+  _id: string;
+  username: string;
 };
 
 type Link = {
-  site: string;
-  link: string;
+  name: string;
+  url: string;
 };
 
 type PostRecognition = {
-    mentorship_received: string[];
+  mentorship_received: string[];
   documentation_received: string[];
   innovation_received: string[];
   resolution_received: string[];
   inspiration_received: string[];
-}
+};
 
 type Post = PostRecognition & {
   _id: string;
   title: string;
   content: string;
-  authorId: string;
-  authorUsername: string;
+  author: { _id: string; username: string };
   tags: string[];
   likes_received: string[];
   comments_received: string[];
@@ -40,6 +60,7 @@ type User = {
   links: Link[];
   projects: Project[];
   posts: Post[];
+  followers: string[];
 };
 
 type ServerResponse<T> = {
@@ -51,8 +72,7 @@ type ServerResponse<T> = {
 type Reply = {
   _id: string;
   postId: string;
-  authorId: string;
-  authorUsername: string;
+  authorId: { _id: string; username: string };
   content: string;
   createdAt: string;
 };

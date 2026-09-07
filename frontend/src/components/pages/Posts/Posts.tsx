@@ -9,18 +9,16 @@ export const Posts = () => {
   return (
     <>
       <title>Publicaciones</title>
-      <main className="max-w-[1160px] m-auto flex flex-col">
-        <CreateButton
-          label="Nueva publicación"
-          onClickMethod={() => {
-            setShowCreatePostModal(true);
-          }}
-        />
-        <PostsContainer />
-        {showCreatePostModal && (
-          <CreatePostModal closeModal={() => setShowCreatePostModal(false)} />
-        )}
-      </main>
+      <CreateButton
+        label="Nueva publicación"
+        onClickMethod={() => {
+          setShowCreatePostModal(true);
+        }}
+      />
+      <PostsContainer />
+      {showCreatePostModal && (
+        <CreatePostModal closeModal={() => setShowCreatePostModal(false)} />
+      )}
     </>
   );
 };

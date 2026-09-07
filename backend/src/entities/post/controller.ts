@@ -26,7 +26,7 @@ const getPostById = async (req: Request, res: Response<ServerResponse>) => {
   try {
     const { postId } = req.params;
     const post = await PostModel.getPostById(postId);
-
+    console.log("post", post);
     if (!post) {
       res
         .status(404)
@@ -53,8 +53,7 @@ const createPost = async (
     }
 
     const newPost = await PostModel.create({
-      authorId: req.user!.id,
-      authorUsername: req.user!.username,
+      author: req.user!.id,
       ...validatedBody,
     });
     if (typeof newPost === "string") {
@@ -120,7 +119,7 @@ const addOrRemoveLike = async (
 
     //esto hay que corregirlo
     const updatedUser = await UserModel.increasePostField({
-      userId: postUpdated.authorId.toString(),
+      userId: postUpdated.author.toString(),
       fieldToIncrease: "likes_received",
     });
     if (typeof updatedUser === "string") {

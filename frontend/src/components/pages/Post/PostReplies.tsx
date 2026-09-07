@@ -41,6 +41,7 @@ export const PostReplies = ({ postId }: { postId: string }) => {
         <ReplyForm
           postId={postId}
           onReplyAdded={() => {}}
+          close={() => setShowReplyForm(false)}
         />
       )}
 

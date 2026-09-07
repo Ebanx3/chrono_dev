@@ -1,138 +1,94 @@
 import { Schema, Document, model, Types } from "mongoose";
 
-interface ITask {
-  title: string;
-  description: string;
-  status: "pending" | "in-progress" | "done";
-  assignedTo?: { userId: Types.ObjectId; username: string };
-  dueDate?: Date;
-}
+export enum Permission {
+  PendingMembersView = "project.pending_members.view",
+  MembersInvite = "project.members.invite",
+  MembersAccept = "project.members.accept",
+  MembersRemove = "project.members.remove",
+  MembersEditRole = "project.members.edit_role",
+  MembersBan = "project.members.ban",
 
-interface INode {
-  id: string;
-  data: { label: string };
-  position: { x: number; y: number };
-}
+  DetailsEdit = "project.details.edit",
 
-export interface IModule extends Document {
-  name: string;
-  details: string;
-  isPublic: boolean;
-  allowedRoles: string[]; // ej: ["admin", "editor"]
-  allowedUsers: { userId: Types.ObjectId; username: string }[];
-  tasks: ITask[];
-  connections: { targetModuleId: Types.ObjectId; type: string }[]; // ej: "dependency", "related"
-  projectId: Types.ObjectId;
-  node: INode;
+  ResourcesAdd = "project.resources.add",
+  ResourcesRemove = "project.resources.remove",
+  ResourcesEdit = "project.resources.edit",
+
+  TicketsCreate = "project.tickets.create",
+  TicketsEdit = "project.tickets.edit",
+  TicketsDelete = "project.tickets.delete",
+  TicketsRequest = "project.tickets.request",
+  TicketsAssign = "project.tickets.assign",
+
+  ActivityAdd = "project.activity.add",
+  ActivityEdit = "project.activity.edit",
+  ActivityDelete = "project.activity.delete",
 }
 
 export interface IProject extends Document {
   name: string;
   details: string;
-  founderId: Types.ObjectId;
-  founderUsername: string;
+  founder: Types.ObjectId;
+  ticketsCount: number;
   techs: string[];
-  members: { userId: Types.ObjectId; username: string; role: string }[];
-  pendingMembers: { userId: Types.ObjectId; username: string }[];
-  modules: Types.ObjectId[]; // relación con módulos
+  resources: { name: string; url: string }[];
+  members: {
+    user: Types.ObjectId;
+    role: String;
+    permissions?: Permission[];
+  }[];
+  membersBanned: { user: Types.ObjectId }[];
+  pendingMembers: { user: Types.ObjectId }[];
   roles: Array<string>;
-  isPublic:boolean;
+  isPublic: boolean;
   followers: Array<Types.ObjectId>;
 }
 
-const taskSchema = new Schema<ITask>(
-  {
-    title: { type: String, required: true },
-    description: { type: String },
-    status: {
-      type: String,
-      enum: ["pending", "in-progress", "done"],
-      default: "pending",
-    },
-    assignedTo: {
-      userId: { type: Schema.Types.ObjectId, ref: "User" },
-      username: { type: String },
-    },
-    dueDate: { type: Date },
-  },
-  { _id: false }
-);
-
-const allowedUSersSchema = new Schema(
-  {
-    userId: { type: Schema.Types.ObjectId, ref: "User" },
-    username: { type: String },
-  },
-  { _id: false }
-);
-
-const connectionssSchema = new Schema(
-  {
-    targetModuleId: { type: Schema.Types.ObjectId, ref: "Module" },
-    type: { type: String, default: "related" },
-  },
-  { _id: false }
-);
-
-const moduleSchema = new Schema<IModule>(
-  {
-    name: { type: String, required: true },
-    details: { type: String },
-    isPublic: { type: Boolean, default: true },
-    allowedRoles: [String],
-    allowedUsers: [allowedUSersSchema],
-    tasks: [taskSchema],
-    connections: [connectionssSchema],
-    projectId: {type: Schema.Types.ObjectId, ref:"Project", required:true },
-    node: {
-      id: { type: String, required: true },
-      data: { label: { type: String, required: true } },
-      position: {
-        x: { type: Number, required: true },
-        y: { type: Number, required: true },
-      },
-    },
-  },
-  { timestamps: true }
-);
-
 const membersSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User" },
-    username: { type: String },
-    role: { type: String },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    role: {
+      type: String,
+      required: false,
+    },
+    permissions: {
+      type: [String],
+      enum: Object.values(Permission),
+      required: false,
+      default: [],
+    },
   },
-  { _id: false }
+  { _id: false },
 );
 
-const pendingMembersSchema = new Schema(
+const resourcesSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User" },
-    username: { type: String },
+    name: { type: String, required: true },
+    url: { type: String, required: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const projectSchema = new Schema<IProject>(
   {
     name: { type: String, required: true },
     details: { type: String },
-    founderId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    founderUsername: { type: String },
+    founder: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    ticketsCount: { type: Number, default: 0, min: 0 },
     techs: [String],
+    resources: [resourcesSchema],
     members: [membersSchema],
-    pendingMembers: [pendingMembersSchema],
-    modules: [{ type: Schema.Types.ObjectId, ref: "Module" }],
+    membersBanned: [membersSchema],
+    pendingMembers: [membersSchema],
     roles: { type: [String], default: [] },
-    isPublic: {type:Boolean},
+    isPublic: { type: Boolean },
     followers: {
       type: [Schema.Types.ObjectId],
       ref: "User",
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const Module = model<IModule>("Module", moduleSchema);
 export const Project = model<IProject>("Project", projectSchema);

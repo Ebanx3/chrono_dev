@@ -20,8 +20,7 @@ const createPostReply = async (
     }
 
     const newPostreply = await ReplyPostModel.createPostReply({
-      authorUsername: req.user!.username,
-      authorId: req.user!.id,
+      author: req.user!.id,
       postId: postId,
       ...validatedBody,
     });
@@ -34,14 +33,14 @@ const createPostReply = async (
       return;
     }
 
-    const post = await Post.findById(postId).select("authorId");
+    const post = await Post.findById(postId).select("author");
 
     if (!post) {
       res.status(404).json({ success: false, message: "Post not found" });
       return;
     }
     await UserModel.increasePostField({
-      userId: post.authorId.toString(),
+      userId: post.author.toString(),
       fieldToIncrease: "comments_received",
     });
 

@@ -4,6 +4,7 @@ import { validateBodyCreateProject } from "./zod";
 import { ProjectModel } from "./model";
 import { UserModel } from "../user/model";
 import { ObjectId } from "mongoose";
+import { Permission } from "./schema";
 
 const createProject = async (
   req: RequestWithData,
@@ -17,8 +18,7 @@ const createProject = async (
     }
 
     const newProject = await ProjectModel.create({
-      founderId: req.user!.id,
-      founderUsername: req.user!.username,
+      founder: req.user!.id,
       ...validatedBody,
     });
     if (typeof newProject === "string") {
@@ -53,15 +53,32 @@ const getProjects = async ( req:RequestWithData, res:Response<ServerResponse>) =
   }
 };
 
-const getProjectById = async ( req:Request, res:Response<ServerResponse>) => {
+const getProjectById = async ( req:RequestWithData, res:Response<ServerResponse>) => {
   try {
     const { projectId } = req.params; 
     const project = await ProjectModel.getById(projectId);
 
-    if (!project) {
+    if (!project || typeof project === "string") {
       res.status(404).json({ success: false, message: "Project not found" });
       return;
     }
+
+    if(!project.isPublic && (!req.user || !project.members.some(member => member.user._id.toString() === req.user!.id))) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    const member = req.user
+      ? project.members.find(projectMember => projectMember.user._id.toString() === req.user!.id)
+      : undefined;
+    const canViewPendingMembers = member?.permissions?.includes(Permission.PendingMembersView) === true;
+
+    if (!canViewPendingMembers) {
+      const {pendingMembers,...projectData} = project.toObject();
+      res.status(200).json({ success: true, message: "Ok", data: projectData });
+      return;
+    }
+
     res.status(200).json({ success: true, message: "Ok", data: project });
   } catch (error) {
     console.log(error);
@@ -69,4 +86,24 @@ const getProjectById = async ( req:Request, res:Response<ServerResponse>) => {
   }
 };
 
-export const ProjectController = { createProject, getProjects, getProjectById };
+const addResourceToProject = async (req: RequestWithData, res: Response<ServerResponse>) => {
+  try {
+    const { projectId } = req.params;
+    const { name, url } = req.body;
+    
+    const result = await ProjectModel.addResource(projectId, { name, url });
+
+    if (typeof result === "string") {
+      res.status(400).json({ success: false, message: result });
+      return;
+    }
+
+    res.status(200).json({ success: true, message: "Ok", data: result });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+export const ProjectController = { createProject, getProjects, getProjectById, addResourceToProject };

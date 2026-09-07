@@ -27,7 +27,7 @@ export const Users = () => {
   return (
     <>
       <title>Usuarios</title>
-      <div className="max-w-[1160px] m-auto grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 p-4">
+      <div className="w-full min-h-full grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 p-4">
         {data &&
           data.map((user) => (
             <>

@@ -59,7 +59,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         <label
           htmlFor="post-content"
-          className="text-stone-500 font-medium text-sm"
+          className="text-slate-400 font-medium text-sm"
         >
           Contenido
         </label>
@@ -67,7 +67,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           id="post-content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="border border-stone-300 rounded-md focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 p-2 transition mb-4 focus:outline-none resize-none field-sizing-content min-h-28"
+          className="border border-slate-700 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition mb-4 focus:outline-none text-slate-300 resize-none h-40"
           placeholder="Contenido de la publicación"
         />
 
@@ -88,7 +88,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         ) : (
           <div className="flex justify-between">
             <button
-              className="bg-stone-200 p-2 rounded-md cursor-pointer hover:bg-stone-300"
+              className="bg-slate-700 p-2 rounded-md cursor-pointer text-slate-400 hover:bg-slate-600"
               type="button"
               onClick={closeModal}
             >

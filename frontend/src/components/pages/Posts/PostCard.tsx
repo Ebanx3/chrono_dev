@@ -22,7 +22,7 @@ export const PostCard = ({ post }: { post: Post }) => {
       </div>
 
       <p className="text-sm text-slate-300 mb-2">
-        Publicado por <span className="font-medium">{post.authorUsername}</span>
+        Publicado por <span className="font-medium">{post.author.username}</span>
       </p>
 
       {/* <p className="text-sm text-stone-500 line-clamp-3 mb-3 whitespace-pre-line">

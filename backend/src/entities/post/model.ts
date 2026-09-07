@@ -1,20 +1,18 @@
 import Post from "./schema";
 
 const create = async ({
-  authorId,
-  authorUsername,
+  author,
   title,
   content,
   tags
 }: {
-  authorId: string;
-  authorUsername: string;
+  author: string;
   title: string;
   content: string;
   tags:string[]
 }) => {
   try {
-    const newPost = new Post({ authorId, authorUsername, title, content,tags });
+    const newPost = new Post({ author, title, content,tags });
     return await newPost.save();
   } catch (error) {
     console.error("Error al crear una nueva publicacion:", error);
@@ -24,7 +22,7 @@ const create = async ({
 
 const getPosts = async () => {
   try {
-    return await Post.find();
+    return await Post.find().populate("author", "username").sort({ createdAt: -1 });
   } catch (error) {
     console.log(error);
     return null;
@@ -33,7 +31,7 @@ const getPosts = async () => {
 
 const getPostById = async (postId:string) => {
   try {
-    return await Post.findById(postId)
+    return await Post.findById(postId).populate("author", "username");
   } catch (error) {
     console.log(error);
     return null;

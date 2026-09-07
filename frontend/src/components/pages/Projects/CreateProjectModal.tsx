@@ -17,7 +17,7 @@ export const CreateProjectModal = ({
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [techs, setTechs] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const nav = useNavigate();
 
@@ -27,7 +27,7 @@ export const CreateProjectModal = ({
     const validatedData = await validateCreateProject({
       name,
       details,
-      isPublic,
+      isPublic: !isPrivate,
       techs: techs
         .split(",")
         .map((tag) => tag.trim())
@@ -64,7 +64,7 @@ export const CreateProjectModal = ({
         />
         <label
           htmlFor="project-details"
-          className="text-stone-500 font-medium text-sm"
+          className="text-slate-400 font-medium text-sm"
         >
           Detalles
         </label>
@@ -72,7 +72,7 @@ export const CreateProjectModal = ({
           id="project-details"
           value={details}
           onChange={(e) => setDetails(e.target.value)}
-          className="border border-stone-300 rounded-md focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 p-2 transition mb-4 focus:outline-none resize-none field-sizing-content min-h-28"
+          className="border border-slate-700 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition mb-4 focus:outline-none text-slate-300 resize-none h-40"
           placeholder="Agrega detalles del proyecto"
         />
 
@@ -86,17 +86,21 @@ export const CreateProjectModal = ({
           setInputValue={setTechs}
         />
         <label
-          htmlFor="isPublic"
-          className="text-stone-500 font-medium text-sm flex justify-between items-center mb-4"
+            htmlFor="isPrivate"
+          className="text-slate-400 font-medium text-sm flex justify-between items-center mb-4"
         >
-          <span className="flex gap-3 items-center">Proyecto privado <HelpIcon content="Si está marcado, el contenido del proyecto no será visible para todos los usuarios." /></span>
+          <span className="flex gap-3 items-center">
+            Proyecto privado
+            <HelpIcon content="Si está marcado, el contenido del proyecto no será visible para todos los usuarios." />
+          </span>
           <input
             type="checkbox"
-            id="isPublic"
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-            className="appearance-none border-2 border-stone-400 rounded-md size-6 focus:outline-none checked:bg-emerald-500 checked:border-emerald-500 cursor-pointer"
+            id="isPrivate"
+            checked={isPrivate}
+            onChange={(e) => setIsPrivate(e.target.checked)}
+            className="peer sr-only"
           />
+          <span className="relative h-6 w-11 rounded-full bg-stone-500 transition-colors peer-checked:bg-purple-900 peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-400 after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:after:translate-x-5" />
         </label>
 
         {isLoading ? (
@@ -106,7 +110,7 @@ export const CreateProjectModal = ({
         ) : (
           <div className="flex justify-between">
             <button
-              className="bg-stone-200 p-2 rounded-md cursor-pointer hover:bg-stone-300"
+              className="bg-slate-700 p-2 rounded-md cursor-pointer text-slate-400 hover:bg-slate-600"
               type="button"
               onClick={closeModal}
             >

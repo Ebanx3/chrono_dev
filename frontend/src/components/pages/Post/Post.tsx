@@ -33,16 +33,15 @@ export const Post = () => {
   return (
     <>
       <title>{data!.title}</title>
-      <main className="max-w-[1160px] m-auto p-4">
         <article className="flex flex-col my-4 border-b pb-8 border-slate-800">
           <h1 className="text-2xl font-bold text-slate-100">{data!.title}</h1>
           <span className="text-slate-300">
             Publicado por:{" "}
             <Link
-              to={`/usuarios/${data!.authorId}`}
+              to={`/usuarios/${data!.author._id}`}
               className="font-bold text-purple-400 hover:text-purple-600"
             >
-              {data?.authorUsername}
+              {data!.author.username}
             </Link>
           </span>
           <span className="text-xs text-slate-400">{new Date(data!.createdAt).toLocaleDateString()}</span>
@@ -58,7 +57,6 @@ export const Post = () => {
         </article>
         <PostReplies postId={data!._id} />
         {/* <p className="whitespace-pre-line text-xs text-stone-400 absolute bottom-0 left-0">{JSON.stringify(data, null, 2)}</p> */}
-      </main>
     </>
   );
 };

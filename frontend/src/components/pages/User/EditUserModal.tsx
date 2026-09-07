@@ -78,6 +78,7 @@ export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
           placeholder="Ingresa tu stack separado por comas"
           inputValue={stack}
           setInputValue={setStack}
+          helpIconContent="Lista de tecnologías separadas por comas. Ejemplo: React, Node.js, MongoDB"
         />
 
         <EditUserLinks links={links} setLinks={setLinks} />

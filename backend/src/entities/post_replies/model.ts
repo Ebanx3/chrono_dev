@@ -1,20 +1,17 @@
 import PostReplies from "./schema";
 
 const createPostReply = async ({
-  authorUsername,
-  authorId,
+  author,
   postId,
   content,
 }: {
-  authorUsername: String;
-  authorId: String;
+  author: String;
   postId: String;
   content: String;
 }) => {
   try {
     const newReplyPost = new PostReplies({
-      authorUsername,
-      authorId,
+      author,
       postId,
       content,
     });
@@ -27,7 +24,7 @@ const createPostReply = async ({
 
 const getPostReplies = async (postId: string) => {
   try {
-    return await PostReplies.find({ postId }).sort({
+    return await PostReplies.find({ postId }).populate("author", "username").sort({
       createdAt: -1,
     });
   } catch (err) {
