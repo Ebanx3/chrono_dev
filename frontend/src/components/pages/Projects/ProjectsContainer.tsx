@@ -26,7 +26,7 @@ export const ProjectsContainer = () => {
   return (
     <>
       <div className=" flex flex-col gap-6 p-4">
-         {data && data.map((project) => <ProjectCard key={project!.id} project={project} />)}
+         {data && data.map((project) => <ProjectCard key={project!._id} project={project} />)}
       </div>
     </>
   );

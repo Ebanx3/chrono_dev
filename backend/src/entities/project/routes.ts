@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { ProjectController } from "./controllers";
-import { authenticate, authenticateOptional } from "../../middlewares/authenticate";
+import { mustBeAuthenticated } from "../../middlewares/mustBeAuthenticated";
 
 const router = Router();
 
-router.post("/", authenticate, ProjectController.createProject);
+router.post("/", mustBeAuthenticated, ProjectController.createProject);
 router.get("/", ProjectController.getProjects);
-router.get("/:projectId", authenticateOptional, ProjectController.getProjectById);
+router.patch("/:projectId/addResource", mustBeAuthenticated, ProjectController.addResourceToProject);
+router.get("/:projectId", ProjectController.getProjectById);
 
 export default router;

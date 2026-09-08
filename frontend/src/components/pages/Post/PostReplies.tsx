@@ -55,10 +55,10 @@ export const PostReplies = ({ postId }: { postId: string }) => {
           >
             <div className="flex items-center gap-2 mb-2">
               <Link
-                to={`/usuarios/${reply.authorId}`}
+                to={`/usuarios/${reply.author._id}`}
                 className="font-medium text-slate-300"
               >
-                {reply.authorUsername}
+                {reply.author.username}
               </Link>
               <span className="text-xs text-slate-500">
                 {new Date(reply.createdAt).toLocaleDateString()}

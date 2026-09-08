@@ -2,16 +2,21 @@ import { useState } from "react";
 import { CreateButton } from "../../ui/CreateButton";
 import { AddResourceModal } from "./AddResourceModal";
 
-export const ProjectResources = ({resources}:{resources: Link[]}) => {
+export const ProjectResources = ({
+    resources,
+    projectId,
+}: {
+    resources: Link[];
+    projectId: string;
+}) => {
     const [showAddResourceModal, setShowAddResourceModal] = useState(false);
     const [projectResources, setProjectResources] = useState(resources);
-    
+
     return (
         <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
-
-            <h2 className="text-xl font-bold text-slate-200">Recursos</h2>
-            <CreateButton label="Agregar recurso" onClickMethod={() => setShowAddResourceModal(true)}/>
+                <h2 className="text-xl font-bold text-slate-200">Recursos</h2>
+                <CreateButton label="Agregar recurso" onClickMethod={() => setShowAddResourceModal(true)} />
             </div>
             <ul className="flex flex-col gap-2">
                 {projectResources.length === 0 && (
@@ -33,6 +38,7 @@ export const ProjectResources = ({resources}:{resources: Link[]}) => {
             {showAddResourceModal && (
                 <AddResourceModal
                     closeModal={() => setShowAddResourceModal(false)}
+                    projectId={projectId}
                     onAddResource={(resource: Link) =>
                         setProjectResources((currentResources) => [
                             ...currentResources,
@@ -43,4 +49,4 @@ export const ProjectResources = ({resources}:{resources: Link[]}) => {
             )}
         </div>
     );
-}
+};

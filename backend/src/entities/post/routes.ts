@@ -1,12 +1,16 @@
-import {Router} from 'express'
-import { PostController } from './controller'
-import { authenticate } from '../../middlewares/authenticate'
+import { Router } from "express";
+import { PostController } from "./controller";
+import { mustBeAuthenticated } from "../../middlewares/mustBeAuthenticated";
 
 const router = Router();
 
-router.post('/', authenticate, PostController.createPost);
-router.get('/', PostController.getAllPosts);
-router.get('/:postId', PostController.getPostById);
-router.patch('/:recognitionType/:postId', authenticate, PostController.addOrRemoveLike);
+router.get("/", PostController.getAllPosts);
+router.get("/:postId", PostController.getPostById);
+router.post("/", mustBeAuthenticated, PostController.createPost);
+router.patch(
+  "/:recognitionType/:postId",
+  mustBeAuthenticated,
+  PostController.addOrRemoveLike,
+);
 
 export default router;

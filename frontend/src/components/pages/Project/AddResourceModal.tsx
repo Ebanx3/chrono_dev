@@ -1,23 +1,64 @@
 import { useState } from "react";
+import { toast } from "sonner";
+import { addResourceToProject } from "../../../api/project";
 import { Form } from "../../ui/Forms/Form";
-import { FormButton } from "../../ui/Forms/FormButton";
 import { FormInput } from "../../ui/Forms/FormInput";
 
 interface AddResourceModalProps {
   closeModal: VoidFunction;
+  projectId: string;
   onAddResource: (resource: Link) => void;
 }
 
 export const AddResourceModal = ({
   closeModal,
+  projectId,
   onAddResource,
 }: AddResourceModalProps) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onAddResource({ name: name.trim(), url: url.trim() });
+
+    const trimmedName = name.trim();
+    const trimmedUrl = url.trim();
+
+    if (!trimmedName) {
+      toast.error("El nombre del recurso es obligatorio.");
+      return;
+    }
+
+    if (!trimmedUrl) {
+      toast.error("La URL del recurso es obligatoria.");
+      return;
+    }
+
+    try {
+      new URL(trimmedUrl);
+    } catch {
+      toast.error("La URL no tiene un formato válido.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const result = await addResourceToProject({
+      projectId,
+      name: trimmedName,
+      url: trimmedUrl,
+    });
+
+    setIsLoading(false);
+
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
+
+    onAddResource({ name: trimmedName, url: trimmedUrl });
+    toast.success("Recurso agregado correctamente");
     closeModal();
   };
 
@@ -57,7 +98,13 @@ export const AddResourceModal = ({
           >
             Cancelar
           </button>
-          <FormButton label="Agregar" />
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-purple-600 text-white font-semibold p-2 rounded-md transition duration-300 hover:brightness-110 hover:scale-[1.03] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Agregando..." : "Agregar"}
+          </button>
         </div>
       </Form>
     </div>

@@ -13,6 +13,8 @@ type Project = {
   createdAt: string;
   updatedAt: string;
   resources: Link[];
+  iAmMember:boolean;
+  iAmPendingMember:boolean;
 };
 
 type ProjectMember = {
@@ -67,12 +69,13 @@ type ServerResponse<T> = {
   success: boolean;
   message: string;
   data?: T;
+  isLoggedIn:boolean;
 };
 
 type Reply = {
   _id: string;
   postId: string;
-  authorId: { _id: string; username: string };
+  author: { _id: string; username: string };
   content: string;
   createdAt: string;
 };

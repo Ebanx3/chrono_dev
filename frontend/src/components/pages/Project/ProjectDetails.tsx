@@ -35,13 +35,13 @@ export const ProjectDetails = ({ project }: { project: Project }) => {
         {project.techs.map((tech) => (
           <span
             key={tech}
-            className="inline-block bg-slate-700 text-slate-300 px-2 py-1 rounded-md text-sm mr-2 mb-2"
+            className="inline-block bg-slate-900 text-slate-300 px-2 py-1 rounded-md text-sm mr-2 mb-2"
           >
             {tech}
           </span>
         ))}
       </div>
-      <ProjectResources resources={project.resources} />
+      <ProjectResources resources={project.resources} projectId={project._id} />
     </div>
   );
 };

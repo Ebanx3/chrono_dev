@@ -9,6 +9,7 @@ export const useFetch = <T,>(url: string) => {
       try {
         const response = await fetch(`${import.meta.env.VITE_SERVER_URL}${url}`,{credentials: "include"});
         const json = await response.json();
+        console.log(json)
         setData(json.data);
       } catch (err) {
         setError((err as Error).message);

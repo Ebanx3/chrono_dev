@@ -45,3 +45,30 @@ export const getProjectById = async (id: string) => {
     };
   } 
 };
+
+export const addResourceToProject = async ({
+  projectId,
+  name,
+  url,
+}: {
+  projectId: string;
+  name: string;
+  url: string;
+}) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/addResource`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH",
+      body: JSON.stringify({ name, url }),
+    });
+    const json = (await data.json()) as ServerResponse<Project>;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error al intentar conectar con el servidor",
+    };
+  }
+};

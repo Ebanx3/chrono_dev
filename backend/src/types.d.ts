@@ -4,6 +4,7 @@ export type ServerResponse = {
     success:boolean;
     message: string;
     data?:any;
+    isLoggedIn:boolean;
 }
 
 interface RequestWithData extends Request {

@@ -7,7 +7,7 @@ import Post from "../post/schema";
 
 const createPostReply = async (
   req: RequestWithData,
-  res: Response<ServerResponse>
+  res: Response<ServerResponse>,
 ) => {
   try {
     const { postId } = req.params;
@@ -15,7 +15,9 @@ const createPostReply = async (
     console.log(validatedBody);
     console.log(req.body);
     if (typeof validatedBody === "string") {
-      res.status(400).json({ success: false, message: validatedBody });
+      res
+        .status(400)
+        .json({ success: false, message: validatedBody, isLoggedIn: true });
       return;
     }
 
@@ -29,6 +31,7 @@ const createPostReply = async (
       res.status(400).json({
         success: false,
         message: newPostreply,
+        isLoggedIn: true,
       });
       return;
     }
@@ -36,7 +39,9 @@ const createPostReply = async (
     const post = await Post.findById(postId).select("author");
 
     if (!post) {
-      res.status(404).json({ success: false, message: "Post not found" });
+      res
+        .status(404)
+        .json({ success: false, message: "Publicación no encontrada", isLoggedIn: true });
       return;
     }
     await UserModel.increasePostField({
@@ -44,34 +49,48 @@ const createPostReply = async (
       fieldToIncrease: "comments_received",
     });
 
-    res.status(201).json({ success: true, message: "Ok" });
+    res.status(201).json({ success: true, message: "Respuesta creada correctamente", isLoggedIn: true });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
   }
 };
 
 const getAllPostReplies = async (
-  req: Request,
-  res: Response<ServerResponse>
+  req: RequestWithData,
+  res: Response<ServerResponse>,
 ) => {
   try {
     const { postId } = req.params;
     const postReplies = await ReplyPostModel.getPostReplies(postId);
 
     if (!postReplies) {
-      res
-        .status(404)
-        .json({
-          success: false,
-          message: "No se encontraron publicaciones para responder",
-        });
+      res.status(404).json({
+        success: false,
+        message: "No se encontraron respuestas para esta publicación",
+        isLoggedIn: req.user ? true : false,
+      });
       return;
     }
-    res.status(201).json({ success: true, message: "Ok", data: postReplies });
+    res
+      .status(201)
+      .json({
+        success: true,
+        message: "Respuestas obtenidas correctamente",
+        data: postReplies,
+        isLoggedIn: req.user ? true : false,
+      });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Error del servidor",
+        isLoggedIn: req.user ? true : false,
+      });
   }
 };
 

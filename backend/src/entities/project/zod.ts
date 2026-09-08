@@ -24,9 +24,33 @@ const createProjectSchema = z.object({
   isPublic: z.boolean().default(true), // por defecto los proyectos son públicos
 });
 
+const addResourceSchema = z.object({
+  name: z
+    .string("Es necesario proporcionar un nombre válido para el recurso")
+    .min(2, "El nombre del recurso debe tener al menos 2 caracteres")
+    .max(100, "El nombre del recurso no puede superar los 100 caracteres"),
+
+  url: z
+    .string("Es necesario proporcionar una URL válida")
+    .url("La URL no tiene un formato válido")
+    .max(500, "La URL no puede superar los 500 caracteres"),
+});
+
 export const validateBodyCreateProject = async (body: object) => {
   try {
     return await createProjectSchema.parseAsync(body);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const messages = error.issues.map((issue) => issue.message);
+      return messages.join("\n");
+    }
+    return "Error inesperado al validar los campos.";
+  }
+};
+
+export const validateBodyAddResource = async (body: object) => {
+  try {
+    return await addResourceSchema.parseAsync(body);
   } catch (error) {
     if (error instanceof z.ZodError) {
       const messages = error.issues.map((issue) => issue.message);

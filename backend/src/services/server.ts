@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import mainRouter from "./router"
 import { env_variables } from "../config/environment";
 import { showRequest } from "../middlewares/showRequest";
+import { authenticate } from "../middlewares/authenticate";
 
 export const app = express();
 
@@ -14,11 +15,13 @@ app.use(
   cors({
     origin: env_variables.FRONTEND,
     credentials: true,
-    methods: ["GET", "POST", "PATCH"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(cookieParser());
 app.use(showRequest);
+app.use(authenticate);
 app.use("/api", mainRouter)
 app.use((_req,res)=>{
   res.status(404).send("Undefined path.")

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export const ProjectCard = ({ project }: { project: Project }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [joinRequested, setJoinRequested] = useState(false);
+  const [joinRequested, setJoinRequested] = useState(project.iAmPendingMember);
 
   return (
     <article className="border border-slate-800 rounded-lg p-4 transition-all duration-300 ease-in-out">
@@ -39,7 +39,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
         {project.techs.map((tech) => (
           <span
             key={tech}
-            className="bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded mr-2"
+            className="bg-slate-900 text-slate-300 text-xs px-2 py-1 rounded mr-2"
           >
             {tech}
           </span>
@@ -62,28 +62,26 @@ export const ProjectCard = ({ project }: { project: Project }) => {
               {project.members.length}{" "}
               {project.members.length === 1 ? "miembro" : "miembros"}
             </span>
-            {project.isPublic ? (
-              <div className="flex gap-2 text-sm">
+            <div className="flex gap-2 text-sm">
+              {(project.isPublic || project.iAmMember) && (
                 <Link
                   to={`/proyectos/${project._id}`}
                   className="mt-4 rounded-md bg-slate-700 px-2 py-1 font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-default disabled:opacity-70"
                 >
                   Ver Proyecto
                 </Link>
-                <button className="mt-4 rounded-md bg-purple-700 px-2 py-1 font-medium text-white transition-colors hover:bg-purple-800 disabled:cursor-default disabled:opacity-70 cursor-pointer">
-                  Unirse
+              )}
+              {!project.isPublic && !project.iAmMember && (
+                <button
+                  type="button"
+                  className="mt-4 rounded-md bg-purple-700 px-2 py-1 font-medium text-white transition-colors hover:bg-purple-800 disabled:cursor-default disabled:opacity-70 text-sm cursor-pointer"
+                  disabled={joinRequested}
+                  onClick={() => setJoinRequested(true)}
+                >
+                  {joinRequested ? "Solicitud enviada" : "Solicitar unirse"}
                 </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="mt-4 rounded-md bg-purple-700 px-2 py-1 font-medium text-white transition-colors hover:bg-purple-800 disabled:cursor-default disabled:opacity-70 text-sm cursor-pointer"
-                disabled={joinRequested}
-                onClick={() => setJoinRequested(true)}
-              >
-                {joinRequested ? "Solicitud enviada" : "Solicitar unirse"}
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </>
       )}

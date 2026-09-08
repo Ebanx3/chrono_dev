@@ -1,18 +1,23 @@
 import { Request, Response } from "express";
 import { validateBodyRegister, validateBodyLogin } from "./zod";
 import { UserModel } from "./model";
-import { ServerResponse } from "../../types";
+import { RequestWithData, ServerResponse } from "../../types";
 import { comparePasswords } from "../../services/encryptPass";
 import { createToken } from "../../utils/jwt";
 import { env_variables } from "../../config/environment";
 import { removeSensitiveUserData } from "../../utils/removeSensitiveUserData";
 import { sendVerificationCodeToEmail } from "../../services/nodemailer";
 
-const register = async (req: Request, res: Response<ServerResponse>) => {
+const register = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
   try {
     const validatedBody = await validateBodyRegister(req.body);
     if (typeof validatedBody === "string") {
-      res.status(400).json({ success: false, message: validatedBody });
+      res
+        .status(400)
+        .json({ success: false, message: validatedBody, isLoggedIn: false });
       return;
     }
 
@@ -21,6 +26,7 @@ const register = async (req: Request, res: Response<ServerResponse>) => {
       res.status(400).json({
         success: false,
         message: newUser,
+        isLoggedIn: false,
       });
       return;
     }
@@ -32,18 +38,26 @@ const register = async (req: Request, res: Response<ServerResponse>) => {
 
     res
       .status(201)
-      .json({ success: true, message: "Usuario registrado exitosamente" });
+      .json({
+        success: true,
+        message: "Usuario registrado exitosamente",
+        isLoggedIn: false,
+      });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", isLoggedIn: false });
   }
 };
 
-const login = async (req: Request, res: Response<ServerResponse>) => {
+const login = async (req: RequestWithData, res: Response<ServerResponse>) => {
   try {
     const validatedBody = await validateBodyLogin(req.body);
     if (typeof validatedBody === "string") {
-      res.status(400).json({ success: false, message: validatedBody });
+      res
+        .status(400)
+        .json({ success: false, message: validatedBody, isLoggedIn: false });
       return;
     }
 
@@ -52,18 +66,20 @@ const login = async (req: Request, res: Response<ServerResponse>) => {
       res.status(400).json({
         success: false,
         message: "Credenciales invalidas",
+        isLoggedIn: false,
       });
       return;
     }
 
     const samePassword = await comparePasswords(
       validatedBody.password,
-      user.password
+      user.password,
     );
     if (!samePassword) {
       res.status(400).json({
         success: false,
         message: "Credenciales invalidas",
+        isLoggedIn: false,
       });
       return;
     }
@@ -82,10 +98,13 @@ const login = async (req: Request, res: Response<ServerResponse>) => {
         success: true,
         message: "Usuario ingresado exitosamente",
         data: removeSensitiveUserData(user),
+        isLoggedIn: true,
       });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", isLoggedIn: false });
   }
 };
 
@@ -97,7 +116,7 @@ const logout = async (_req: Request, res: Response<ServerResponse>) => {
       sameSite: "strict",
     })
     .status(200)
-    .json({ success: true, message: "Logout correcto" });
+    .json({ success: true, message: "Logout correcto", isLoggedIn: false });
 };
 
 const verifiyEmail = async (req: Request, res: Response<ServerResponse>) => {
@@ -107,6 +126,7 @@ const verifiyEmail = async (req: Request, res: Response<ServerResponse>) => {
       res.status(400).json({
         success: false,
         message: "uid y code son necesarios en la query",
+        isLoggedIn: false,
       });
       return;
     }
@@ -116,6 +136,7 @@ const verifiyEmail = async (req: Request, res: Response<ServerResponse>) => {
       res.status(400).json({
         success: false,
         message: "No se encontro un usuario con ese id",
+        isLoggedIn: false,
       });
       return;
     }
@@ -124,6 +145,7 @@ const verifiyEmail = async (req: Request, res: Response<ServerResponse>) => {
       res.status(400).json({
         success: false,
         message: "El email ya fue validado",
+        isLoggedIn: false,
       });
       return;
     }
@@ -132,16 +154,23 @@ const verifiyEmail = async (req: Request, res: Response<ServerResponse>) => {
       res.status(400).json({
         success: false,
         message: "Error al intentar validar el email",
+        isLoggedIn: false,
       });
       return;
     }
 
     res
       .status(200)
-      .json({ success: true, message: "Email validado correctamente" });
+      .json({
+        success: true,
+        message: "Email validado correctamente",
+        isLoggedIn: false,
+      });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", isLoggedIn: false });
   }
 };
 

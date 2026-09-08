@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { RequestWithData } from "../types";
 
 export const showRequest = (
-  req: Request,
+  req: RequestWithData,
   _res: Response,
   next: NextFunction
 ) => {
@@ -9,7 +10,8 @@ export const showRequest = (
 New Request
 from: ${req.headers.origin}
 endpoint: ${req.url}
-method: ${req.method}`);
+method: ${req.method}
+user:${req.user}`);
   if (req.body) console.log(JSON.stringify({ body: req.body }, null, 2));
   next();
 };
