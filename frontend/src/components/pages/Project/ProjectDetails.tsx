@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ProjectResources } from "./ProjectResources";
 
-export const ProjectDetails = ({ project }: { project: Project }) => {
+export const ProjectDetails = ({ project }: { project: ProjectWithUserFlags }) => {
   return (
     <div className="flex flex-col gap-4 w-3/4">
       <div className="flex items-center gap-4">
@@ -41,7 +41,7 @@ export const ProjectDetails = ({ project }: { project: Project }) => {
           </span>
         ))}
       </div>
-      <ProjectResources resources={project.resources} projectId={project._id} />
+      {project.permissions["project.resources.add"]  && <ProjectResources resources={project.resources} projectId={project._id} />}
     </div>
   );
 };

@@ -9,6 +9,7 @@ import {
   hasPermission,
   memberInProject,
   pendingMemberInProject,
+  projectWithUserFlags,
 } from "../../utils/memberInProject";
 
 const createProject = async (
@@ -120,37 +121,35 @@ const getProjectById = async (
       return;
     }
 
-    const member = req.user
-      ? project.members.find(
-          (projectMember) => projectMember.user._id.toString() === req.user!.id,
-        )
-      : undefined;
-    const canViewPendingMembers =
-      member?.permissions?.includes(Permission.PendingMembersView) === true;
+    // const member = req.user
+    //   ? project.members.find(
+    //       (projectMember) => projectMember.user._id.toString() === req.user!.id,
+    //     )
+    //   : undefined;
+    // const canViewPendingMembers =
+    //   member?.permissions?.includes(Permission.PendingMembersView) === true;
 
-    if (!canViewPendingMembers) {
-      const { pendingMembers, ...projectData } = project.toObject();
-      res.status(200).json({
-        success: true,
-        message: "Proyecto obtenido correctamente",
-        data: {
-          ...projectData,
-          iAmMember: memberInProject(project, req.user?.id),
-          iAmPendingMember: pendingMemberInProject(project, req.user?.id),
-        },
-        isLoggedIn: req.user ? true : false,
-      });
-      return;
-    }
+    // if (!canViewPendingMembers) {
+    //   const { pendingMembers, ...projectData } = project.toObject();
+    //   res.status(200).json({
+    //     success: true,
+    //     message: "Proyecto obtenido correctamente",
+    //     data: {
+    //       ...projectData,
+    //       iAmMember: memberInProject(project, req.user?.id),
+    //       iAmPendingMember: pendingMemberInProject(project, req.user?.id),
+    //     },
+    //     isLoggedIn: req.user ? true : false,
+    //   });
+    //   return;
+    // }
+
+    const projectWithPermissions = projectWithUserFlags(project,req.user?.id)
 
     res.status(200).json({
       success: true,
       message: "Proyecto obtenido correctamente",
-      data: {
-        ...project.toObject(),
-        iAmMember: memberInProject(project, req.user?.id),
-        iAmPendingMember: pendingMemberInProject(project, req.user?.id),
-      },
+      data: projectWithPermissions,
       isLoggedIn: req.user ? true : false,
     });
   } catch (error) {
@@ -208,9 +207,127 @@ const addResourceToProject = async (
   }
 };
 
+const joinAsPendingMember = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId } = req.params;
+
+    const result = await ProjectModel.joinAsPendingMember(projectId,req.user?.id);
+    if (typeof result === "string") {
+      res
+        .status(400)
+        .json({ success: false, message: result, isLoggedIn: true });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Solicitud enviada correctamente", data: result, isLoggedIn: true });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  }
+};
+
+const joinAsMember = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId } = req.params;
+
+    const result = await ProjectModel.joinAsMember(projectId,req.user?.id);
+    if (typeof result === "string") {
+      res
+        .status(400)
+        .json({ success: false, message: result, isLoggedIn: true });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Solicitud enviada correctamente", data: result, isLoggedIn: true });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  }
+};
+
+const acceptPendingMember = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId, userId } = req.params;
+
+    const result = await ProjectModel.acceptPendingMember(projectId, userId);
+    if (typeof result === "string") {
+      res.status(400).json({
+        success: false,
+        message: result,
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Miembro aceptado correctamente",
+      data: result,
+      isLoggedIn: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  }
+};
+
+const rejectPendingMember = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId, userId } = req.params;
+
+    const result = await ProjectModel.rejectPendingMember(projectId, userId);
+    if (typeof result === "string") {
+      res.status(400).json({
+        success: false,
+        message: result,
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Miembro rechazado correctamente",
+      data: result,
+      isLoggedIn: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  }
+};
+
 export const ProjectController = {
   createProject,
   getProjects,
   getProjectById,
   addResourceToProject,
+  joinAsPendingMember,
+  joinAsMember,
+  acceptPendingMember,
+  rejectPendingMember,
 };

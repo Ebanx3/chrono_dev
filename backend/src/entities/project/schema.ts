@@ -34,11 +34,11 @@ export interface IProject extends Document {
   resources: { name: string; url: string }[];
   members: {
     user: Types.ObjectId;
-    role: String;
+    role?: String;
     permissions?: Permission[];
   }[];
-  membersBanned: { user: Types.ObjectId }[];
-  pendingMembers: { user: Types.ObjectId }[];
+  membersBanned: Types.ObjectId[];
+  pendingMembers: Types.ObjectId[];
   roles: Array<string>;
   isPublic: boolean;
   followers: Array<Types.ObjectId>;
@@ -78,8 +78,8 @@ const projectSchema = new Schema<IProject>(
     techs: [String],
     resources: [resourcesSchema],
     members: [membersSchema],
-    membersBanned: [membersSchema],
-    pendingMembers: [membersSchema],
+    membersBanned: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
+    pendingMembers: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     roles: { type: [String], default: [] },
     isPublic: { type: Boolean },
     followers: {

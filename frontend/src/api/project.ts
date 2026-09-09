@@ -72,3 +72,75 @@ export const addResourceToProject = async ({
     };
   }
 };
+
+export const joinAsPendingMember = async (projectId:string) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/joinAsPendingMember`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH"
+    });
+    const json = (await data.json()) as ServerResponse<Project>;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error al intentar conectar con el servidor",
+    };
+  }
+}
+
+export const joinAsMember = async (projectId:string) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/joinAsMember`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH"
+    });
+    const json = (await data.json()) as ServerResponse<Project>;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error al intentar conectar con el servidor",
+    };
+  }
+}
+
+export const acceptPendingMember = async (projectId:string, userId:string) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/acceptPendingMember/${userId}`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH"
+    });
+    const json = (await data.json()) as ServerResponse<Project>;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error al intentar conectar con el servidor",
+    };
+  }
+}
+
+export const rejectPendingMember = async (projectId:string, userId:string) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/rejectPendingMember/${userId}`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH"
+    });
+    const json = (await data.json()) as ServerResponse<Project>;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error al intentar conectar con el servidor",
+    };
+  }
+}

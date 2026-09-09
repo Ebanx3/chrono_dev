@@ -7,7 +7,7 @@ import { PendingMembers } from "./PendingMembers";
 
 export const Project = () => {
   const { projectId } = useParams();
-  const { data, error, loading } = useFetch<Project>(`/project/${projectId}`);
+  const { data, error, loading, refetch } = useFetch<ProjectWithUserFlags>(`/project/${projectId}`);
   console.log(data)
   if (error) {
     return (
@@ -45,11 +45,11 @@ export const Project = () => {
   return (
     <>
       <title>{data?.name || "Project"}</title>
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-col sm:flex-row">
         <ProjectDetails project={data!} />
-        <div className="w-1/3">
+        <div className="sm:w-1/3">
           <Members members={data!.members} />
-          {!data?.isPublic && data?.pendingMembers && <PendingMembers pendingMembers={data.pendingMembers}/>}
+          {!data?.isPublic && data?.pendingMembers && <PendingMembers pendingMembers={data.pendingMembers} refetchProject={refetch}/>}
           </div>
       </div>
     </>

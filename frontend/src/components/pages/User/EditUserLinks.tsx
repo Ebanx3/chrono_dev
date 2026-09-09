@@ -19,7 +19,7 @@ export const EditUserLinks = ({ links, setLinks }: { links: Link[], setLinks: Re
       ) {
         newLink.link = "https://" + newLink.link;
       }
-      setLinks([...links, { site: newLink.site, link: newLink.link }]);
+      setLinks([...links, { name: newLink.site, url: newLink.link }]);
       setNewLink({ site: "", link: "" });
       setShowInputs(false);
     }
@@ -82,8 +82,8 @@ export const EditUserLinks = ({ links, setLinks }: { links: Link[], setLinks: Re
             key={index}
             className="flex gap-2 mb-2 text-sm"
           >
-            <span className="text-slate-400 w-1/7">{link.site}:</span>
-            <span className="flex-1 text-slate-600">{link.link}</span>
+            <span className="text-slate-400 w-1/7">{link.name}:</span>
+            <span className="flex-1 text-slate-600">{link.url}</span>
             <button
               onClick={() => removeLink(index)}
               className="text-red-500 text-xs flex items-center m-auto hover:text-red-700 cursor-pointer"

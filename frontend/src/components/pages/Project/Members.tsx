@@ -10,7 +10,13 @@ export const Members = ({ members }: { members: ProjectMember[] }) => {
             key={member.user._id}
             className="flex items-center gap-2 text-slate-300  rounded-md text-sm"
           >
-            <Link to={`/usuarios/${member.user._id}`} className="font-medium underline text-slate-300 hover:text-slate-400">{member.user.username}</Link>
+            <Link
+              to={`/usuarios/${member.user._id}`}
+              className="font-medium underline text-slate-300 hover:text-slate-400"
+              target="__blank"
+            >
+              {member.user.username}
+            </Link>
             <span className="text-slate-400">({member.role})</span>
           </div>
         ))}

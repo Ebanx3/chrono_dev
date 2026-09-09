@@ -7,7 +7,7 @@ export const Navbar = () => {
   const { user } = useUserContext();
 
   return (
-    <nav className="flex py-4 px-12 justify-end items-center gap-4">
+    <nav className="flex py-4 px-12 justify-end items-center gap-4 h-16">
       <NavBarLink />
       <NavBarLink to="Proyectos"/>
       <NavBarLink to="Publicaciones"/>
@@ -24,10 +24,10 @@ export const Navbar = () => {
           Ingresar
         </NavLink>
       ) : (
-        <>
+        <div className="w-24">
         <span className="border-l border-slate-600 h-6"></span>
         <DropdownMenu />
-        </>
+        </div>
       )}
     </nav>
   );

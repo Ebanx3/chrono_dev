@@ -50,14 +50,18 @@ const getById = async (projectId: string) => {
   try {
     return await Project.findById(projectId)
       .populate("founder", "username")
-      .populate("members.user", "username");
+      .populate("members.user", "username")
+      .populate("pendingMembers","username");
   } catch (error) {
     console.error("Error al obtener el proyecto:", error);
     return "Error inesperado al obtener el proyecto";
   }
 };
 
-const addResource = async (projectId: string, resource: { name: string; url: string }) => {
+const addResource = async (
+  projectId: string,
+  resource: { name: string; url: string },
+) => {
   try {
     const project = await Project.findById(projectId);
     if (!project) {
@@ -71,4 +75,109 @@ const addResource = async (projectId: string, resource: { name: string; url: str
   }
 };
 
-export const ProjectModel = { create, getAll, getById, addResource };
+const joinAsPendingMember = async (projectId: string, userId: string) => {
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "Proyecto no encontrado";
+    }
+    if (project.isPublic) {
+      project.members.push({ user: new Types.ObjectId(userId) });
+      return await project.save();
+    }
+    if (project.pendingMembers.some((member) => member.toString() === userId))
+      return "El usuario ya está esperando aprobación";
+
+    project.pendingMembers.push(new Types.ObjectId(userId));
+    return await project.save();
+  } catch (error) {
+    console.error("Error al agregar el recurso:", error);
+    return "Error inesperado al agregar el recurso";
+  }
+};
+
+const joinAsMember = async (projectId: string, userId: string) => {
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "Proyecto no encontrado";
+    }
+    if (!project.isPublic) return "No puedes unirte al proyecto sin aprobación";
+    if (project.members.some((member) => member.user._id.toString() === userId))
+      return "El usuario ya es miembro en el proyecto";
+    if (project.membersBanned.some((member) => member.toString() === userId))
+      return "El usuario fue expulsado del proyecto";
+
+    project.members.push({ user: new Types.ObjectId(userId) });
+    return await project.save();
+  } catch (error) {
+    console.error("Error al agregar el recurso:", error);
+    return "Error inesperado al agregar el recurso";
+  }
+};
+
+const acceptPendingMember = async (projectId: string, userId: string) => {
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "Proyecto no encontrado";
+    }
+
+    if (project.members.some((member) => member.user.toString() === userId)) {
+      return "El usuario ya es miembro del proyecto";
+    }
+
+    const isPending = project.pendingMembers.some(
+      (member) => member.toString() === userId,
+    );
+    if (!isPending) {
+      return "El usuario no está pendiente de aprobación";
+    }
+
+    project.pendingMembers = project.pendingMembers.filter(
+      (member) => member.toString() !== userId,
+    );
+    project.members.push({ user: new Types.ObjectId(userId) });
+
+    return await project.save();
+  } catch (error) {
+    console.error("Error al aceptar al miembro pendiente:", error);
+    return "Error inesperado al aceptar al miembro";
+  }
+};
+
+const rejectPendingMember = async (projectId: string, userId: string) => {
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "Proyecto no encontrado";
+    }
+
+    const isPending = project.pendingMembers.some(
+      (member) => member.toString() === userId,
+    );
+    if (!isPending) {
+      return "El usuario no está pendiente de aprobación";
+    }
+
+    project.pendingMembers = project.pendingMembers.filter(
+      (member) => member.toString() !== userId,
+    );
+
+    return await project.save();
+  } catch (error) {
+    console.error("Error al rechazar al miembro pendiente:", error);
+    return "Error inesperado al rechazar al miembro";
+  }
+};
+
+export const ProjectModel = {
+  create,
+  getAll,
+  getById,
+  addResource,
+  joinAsPendingMember,
+  joinAsMember,
+  acceptPendingMember,
+  rejectPendingMember,
+};

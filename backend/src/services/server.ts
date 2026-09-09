@@ -20,8 +20,8 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(showRequest);
 app.use(authenticate);
+app.use(showRequest);
 app.use("/api", mainRouter)
 app.use((_req,res)=>{
   res.status(404).send("Undefined path.")

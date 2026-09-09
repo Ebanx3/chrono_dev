@@ -18,7 +18,7 @@ export const updateUser = async ({
       headers: { "content-type": "application/json" },
       credentials: "include",
       method: "PATCH",
-      body: JSON.stringify({ title, description, links, stack }),
+      body: JSON.stringify({ title, description, links: links?.map(link=> ({site:link.name, link:link.url})), stack }),
     });
     const json = (await data.json()) as ServerResponse<User>;
     return json;

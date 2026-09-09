@@ -1,3 +1,23 @@
+type ProjectPermission =
+  | "project.pending_members.view"
+  | "project.members.invite"
+  | "project.members.accept"
+  | "project.members.remove"
+  | "project.members.edit_role"
+  | "project.members.ban"
+  | "project.details.edit"
+  | "project.resources.add"
+  | "project.resources.remove"
+  | "project.resources.edit"
+  | "project.tickets.create"
+  | "project.tickets.edit"
+  | "project.tickets.delete"
+  | "project.tickets.request"
+  | "project.tickets.assign"
+  | "project.activity.add"
+  | "project.activity.edit"
+  | "project.activity.delete";
+
 type Project = {
   _id: string;
   name: string;
@@ -16,6 +36,11 @@ type Project = {
   iAmMember:boolean;
   iAmPendingMember:boolean;
 };
+
+type ProjectWithUserFlags = Project & {
+  iAmMember: boolean;
+  iAmPendingMember: boolean;
+} & {permissions:Record<ProjectPermission, boolean>};
 
 type ProjectMember = {
   user: { _id: string; username: string };
