@@ -5,9 +5,11 @@ import { AddResourceModal } from "./AddResourceModal";
 export const ProjectResources = ({
     resources,
     projectId,
+    canAddResources
 }: {
     resources: Link[];
     projectId: string;
+    canAddResources:boolean
 }) => {
     const [showAddResourceModal, setShowAddResourceModal] = useState(false);
     const [projectResources, setProjectResources] = useState(resources);
@@ -16,19 +18,19 @@ export const ProjectResources = ({
         <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-slate-200">Recursos</h2>
-                <CreateButton label="Agregar recurso" onClickMethod={() => setShowAddResourceModal(true)} />
+                {canAddResources && <CreateButton label="Agregar recurso" onClickMethod={() => setShowAddResourceModal(true)} />}
             </div>
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col gap-1">
                 {projectResources.length === 0 && (
                     <li className="text-slate-400">No hay recursos disponibles.</li>
                 )}
                 {projectResources.map((resource, index) => (
-                    <li key={index}>
+                    <li key={index}> 
                         <a
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-purple-400 hover:text-purple-600"
+                            className="text-slate-400 hover:text-purple-400 underline text-sm"
                         >
                             {resource.name}
                         </a>

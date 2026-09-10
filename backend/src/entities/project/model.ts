@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { Permission, Project } from "./schema";
+import { IProject, Permission, Project } from "./schema";
 
 const create = async ({
   name,
@@ -171,6 +171,51 @@ const rejectPendingMember = async (projectId: string, userId: string) => {
   }
 };
 
+const editMember = async ({
+  project,
+  userId,
+  role,
+  permissions,
+}: {
+  project: IProject;
+  userId: string;
+  role: string;
+  permissions: Permission[];
+}) => {
+  try {
+    const index = project.members.findIndex(
+      (member) => member.user._id.toString() === userId,
+    );
+    if (index < 0) return "No existe usuario con ese id como miembro del proyecto";
+
+    project.members[index].role = role;
+    project.members[index].permissions = permissions;
+    return await project.save();
+  } catch (error) {
+    console.error("Error al modificar las opciones del miembro:", error);
+    return "Error inesperado al modificar las opciones del miembro";
+  }
+}
+
+const removeMember = async ({ project, userId }: { project: IProject; userId: string }) => {
+  try {
+    const memberIndex = project.members.findIndex(
+      (member) => member.user._id.toString() === userId,
+    );
+    if (memberIndex < 0) return "No existe usuario con ese id como miembro del proyecto";
+
+    if (project.founder.toString() === userId) {
+      return "El fundador no puede ser expulsado del proyecto";
+    }
+
+    project.members.splice(memberIndex, 1);
+    return await project.save();
+  } catch (error) {
+    console.error("Error al expulsar al miembro:", error);
+    return "Error inesperado al expulsar al miembro";
+  }
+}
+
 export const ProjectModel = {
   create,
   getAll,
@@ -180,4 +225,6 @@ export const ProjectModel = {
   joinAsMember,
   acceptPendingMember,
   rejectPendingMember,
+  editMember,
+  removeMember,
 };

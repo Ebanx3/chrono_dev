@@ -41,7 +41,7 @@ export const ProjectDetails = ({ project }: { project: ProjectWithUserFlags }) =
           </span>
         ))}
       </div>
-      {project.permissions["project.resources.add"]  && <ProjectResources resources={project.resources} projectId={project._id} />}
+      <ProjectResources resources={project.resources} projectId={project._id} canAddResources={project.permissions["project.resources.add"]}/>
     </div>
   );
 };

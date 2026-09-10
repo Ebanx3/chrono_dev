@@ -144,3 +144,42 @@ export const rejectPendingMember = async (projectId:string, userId:string) => {
     };
   }
 }
+
+export const editMember = async ({
+  projectId,
+  userId,
+  role,
+  permissions,
+}: {
+  projectId: string;
+  userId: string;
+  role: string;
+  permissions: ProjectPermission[];
+}) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/editMember/${userId}`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH",
+      body: JSON.stringify({ role, permissions }),
+    });
+    return (await data.json()) as ServerResponse<Project>;
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Error al intentar conectar con el servidor" };
+  }
+};
+
+export const removeMember = async (projectId: string, userId: string) => {
+  try {
+    const data = await fetch(`${SERVER_URL}/project/${projectId}/removeMember/${userId}`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "PATCH",
+    });
+    return (await data.json()) as ServerResponse<Project>;
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Error al intentar conectar con el servidor" };
+  }
+};

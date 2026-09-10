@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { joinAsMember, joinAsPendingMember } from "../../../api/project";
 import { toast } from "sonner";
+import { useUserContext } from "../../../hooks/useUserContext";
 
 export const ProjectCard = ({ project }: { project: Project }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [joinRequested, setJoinRequested] = useState(project.iAmPendingMember);
   const [iAmMember, setIAmMember] = useState(project.iAmMember);
+  const {user} = useUserContext();
 
   const handleJoinAsMember = async () => {
     const res = await joinAsMember(project._id);
@@ -97,7 +99,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
                   </Link>
                 )}
 
-                {!iAmMember && (
+                {!iAmMember && user &&  (
                   <button
                     type="button"
                     className={`mt-4 rounded-md bg-purple-700 px-2 py-1 font-medium text-white transition-colors ${!joinRequested && "hover:bg-purple-800"} disabled:cursor-default disabled:opacity-70 text-sm cursor-pointer`}

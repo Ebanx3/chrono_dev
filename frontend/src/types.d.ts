@@ -45,6 +45,7 @@ type ProjectWithUserFlags = Project & {
 type ProjectMember = {
   user: { _id: string; username: string };
   role: string;
+  permissions: ProjectPermission[];
 };
 
 type PendingMember = {

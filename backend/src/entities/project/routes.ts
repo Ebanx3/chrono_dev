@@ -11,6 +11,8 @@ router.patch("/:projectId/joinAsPendingMember",mustBeAuthenticated, ProjectContr
 router.patch("/:projectId/joinAsMember",mustBeAuthenticated, ProjectController.joinAsMember);
 router.patch("/:projectId/acceptPendingMember/:userId", mustBeAuthenticated, ProjectController.acceptPendingMember);
 router.patch("/:projectId/rejectPendingMember/:userId", mustBeAuthenticated, ProjectController.rejectPendingMember);
+router.patch("/:projectId/editMember/:userId", mustBeAuthenticated, ProjectController.editMember);
+router.patch("/:projectId/removeMember/:userId", mustBeAuthenticated, ProjectController.removeMember);
 router.get("/:projectId", ProjectController.getProjectById);
 
 export default router;

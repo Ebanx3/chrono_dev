@@ -47,9 +47,15 @@ export const Project = () => {
       <title>{data?.name || "Project"}</title>
       <div className="flex gap-4 flex-col sm:flex-row">
         <ProjectDetails project={data!} />
-        <div className="sm:w-1/3">
-          <Members members={data!.members} />
-          {!data?.isPublic && data?.pendingMembers && <PendingMembers pendingMembers={data.pendingMembers} refetchProject={refetch}/>}
+        <div className="sm:w-1/4">
+          <Members
+            projectId={projectId!}
+            members={data!.members}
+            canEditOptions={Boolean(data?.permissions?.["project.members.edit_role"])}
+            canRemoveMember={Boolean(data?.permissions?.["project.members.remove"])}
+            refetchProject={refetch}
+          />
+          {!data?.isPublic && data?.permissions["project.pending_members.view"] && <PendingMembers pendingMembers={data.pendingMembers} refetchProject={refetch}/>} 
           </div>
       </div>
     </>

@@ -1,6 +1,10 @@
 import { Response } from "express";
 import { RequestWithData, ServerResponse } from "../../types";
-import { validateBodyAddResource, validateBodyCreateProject } from "./zod";
+import {
+  validateBodyAddResource,
+  validateBodyCreateProject,
+  validateBodyEditMember,
+} from "./zod";
 import { ProjectModel } from "./model";
 import { UserModel } from "../user/model";
 import { ObjectId } from "mongoose";
@@ -120,29 +124,6 @@ const getProjectById = async (
       });
       return;
     }
-
-    // const member = req.user
-    //   ? project.members.find(
-    //       (projectMember) => projectMember.user._id.toString() === req.user!.id,
-    //     )
-    //   : undefined;
-    // const canViewPendingMembers =
-    //   member?.permissions?.includes(Permission.PendingMembersView) === true;
-
-    // if (!canViewPendingMembers) {
-    //   const { pendingMembers, ...projectData } = project.toObject();
-    //   res.status(200).json({
-    //     success: true,
-    //     message: "Proyecto obtenido correctamente",
-    //     data: {
-    //       ...projectData,
-    //       iAmMember: memberInProject(project, req.user?.id),
-    //       iAmPendingMember: pendingMemberInProject(project, req.user?.id),
-    //     },
-    //     isLoggedIn: req.user ? true : false,
-    //   });
-    //   return;
-    // }
 
     const projectWithPermissions = projectWithUserFlags(project,req.user?.id)
 
@@ -321,6 +302,116 @@ const rejectPendingMember = async (
   }
 };
 
+const editMember = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId, userId } = req.params;
+    const validatedBody = await validateBodyEditMember(req.body);
+
+    if (typeof validatedBody === "string") {
+      res.status(400).json({
+        success: false,
+        message: validatedBody,
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    const project = await ProjectModel.getById(projectId);
+    if (!project || typeof project === "string") {
+      res.status(404).json({
+        success: false,
+        message: "Proyecto no encontrado",
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    if (!hasPermission({ project, userId: req.user?.id, permission: Permission.MembersEditRole })) {
+      res.status(403).json({
+        success: false,
+        message: "No tienes permisos para realizar esta acción",
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    const result = await ProjectModel.editMember({
+      project,
+      userId,
+      role: validatedBody.role,
+      permissions: validatedBody.permissions,
+    });
+
+    if (typeof result === "string") {
+      res.status(400).json({
+        success: false,
+        message: result,
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Opciones del miembro actualizadas correctamente",
+      data: result,
+      isLoggedIn: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Error del servidor",
+      isLoggedIn: true,
+    });
+  }
+};
+
+const removeMember = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId, userId } = req.params;
+    const project = await ProjectModel.getById(projectId);
+
+    if (!project || typeof project === "string") {
+      res.status(404).json({ success: false, message: "Proyecto no encontrado", isLoggedIn: true });
+      return;
+    }
+
+    if (!hasPermission({ project, userId: req.user?.id, permission: Permission.MembersRemove })) {
+      res.status(403).json({
+        success: false,
+        message: "No tienes permisos para realizar esta acción",
+        isLoggedIn: true,
+      });
+      return;
+    }
+
+    const result = await ProjectModel.removeMember({ project, userId });
+    if (typeof result === "string") {
+      res.status(400).json({ success: false, message: result, isLoggedIn: true });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Miembro expulsado correctamente",
+      data: result,
+      isLoggedIn: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  }
+};
+
+
+
 export const ProjectController = {
   createProject,
   getProjects,
@@ -330,4 +421,6 @@ export const ProjectController = {
   joinAsMember,
   acceptPendingMember,
   rejectPendingMember,
+  editMember,
+  removeMember,
 };
