@@ -13,3 +13,5 @@ interface RequestWithData extends Request {
   validatedData?: any;
   cookies: { [key: string]: string };
 }
+
+type ActivityItemType = "discussion" | "vote" | "ticket";

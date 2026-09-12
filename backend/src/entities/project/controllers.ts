@@ -15,6 +15,7 @@ import {
   pendingMemberInProject,
   projectWithUserFlags,
 } from "../../utils/memberInProject";
+import { ProjectActivityModel } from "../project_activity/model";
 
 const createProject = async (
   req: RequestWithData,
@@ -33,6 +34,7 @@ const createProject = async (
       founder: req.user!.id,
       ...validatedBody,
     });
+
     if (typeof newProject === "string") {
       res.status(400).json({
         success: false,
@@ -53,6 +55,8 @@ const createProject = async (
         .json({ success: false, message: updatedUser, isLoggedIn: true });
       return;
     }
+
+    await ProjectActivityModel.createProjectActivity(newProject._id!.toString());
 
     res.status(201).json({
       success: true,

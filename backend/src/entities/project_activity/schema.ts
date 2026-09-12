@@ -1,20 +1,21 @@
 import { model, Schema, Types } from "mongoose";
+import { ActivityItemType } from "../../types";
 
-interface Vote {
+export interface Vote {
   details: string;
   options: string[];
   votes: { userId: Types.ObjectId; option: string }[];
   status: "open" | "closed";
 }
 
-interface Discussion {
+export interface Discussion {
   title: string;
   content: string;
   author: { userId: Types.ObjectId };
   status: "open" | "closed";
 }
 
-interface TicketsActivity {
+export interface TicketsActivity {
   ticketId: Types.ObjectId;
   action: "created" | "updated" | "deleted" | "assigned";
   timestamp: Date;
@@ -22,22 +23,22 @@ interface TicketsActivity {
   assignedTo?: { userId: Types.ObjectId };
 }
 
-interface DiscussionMessage {
+export interface DiscussionMessage {
   content: string;
   author: { userId: Types.ObjectId };
 }
 
-interface FeedItem {
-  type: "discussion" | "vote" | "ticket";
+export interface IActivityItem {
+  type: ActivityItemType;
   discussion?: Discussion;
   vote?: Vote;
   ticketActivity?: TicketsActivity;
   messages: DiscussionMessage[];
 }
 
-interface IProjectFeed extends Document {
+export interface IProjectActivity extends Document {
   projectId: Types.ObjectId;
-  feedItems: FeedItem[];
+  activityItems: IActivityItem[];
 }
 
 const discussionMessageSchema = new Schema<DiscussionMessage>(
@@ -92,17 +93,15 @@ const ticketsActivitySchema = new Schema<TicketsActivity>(
       enum: ["created", "updated", "deleted", "assigned"],
       required: true,
     },
-    timestamp: { type: Date, default: Date.now },
     user: { userId: { type: Schema.Types.ObjectId, ref: "User" } },
     assignedTo: {
       userId: { type: Schema.Types.ObjectId, ref: "User" },
-      required: false,
     },
   },
   { timestamps: true },
 );
 
-const feedItemSchema = new Schema<FeedItem>(
+const activityItemSchema = new Schema<IActivityItem>(
   {
     type: {
       type: String,
@@ -117,15 +116,20 @@ const feedItemSchema = new Schema<FeedItem>(
   { timestamps: true },
 );
 
-const projectFeedSchema = new Schema<IProjectFeed>(
+const projectActivitySchema = new Schema<IProjectActivity>(
   {
-    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
-    feedItems: { type: [feedItemSchema], default: [] },
+    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true, unique:true },
+    activityItems: { type: [activityItemSchema], default: [] },
   },
   { timestamps: true },
 );
 
-export const ProjectFeed = model<IProjectFeed>(
-  "ProjectFeed",
-  projectFeedSchema,
+export const ActivityItem = model<IActivityItem>(
+  "ActivityItem",
+  activityItemSchema,
+);
+
+export const ProjectActivity = model<IProjectActivity>(
+  "ProjectActivity",
+  projectActivitySchema,
 );

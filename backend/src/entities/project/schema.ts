@@ -39,7 +39,6 @@ export interface IProject extends Document {
   }[];
   membersBanned: Types.ObjectId[];
   pendingMembers: Types.ObjectId[];
-  roles: Array<string>;
   isPublic: boolean;
   followers: Array<Types.ObjectId>;
 }
@@ -80,7 +79,6 @@ const projectSchema = new Schema<IProject>(
     members: [membersSchema],
     membersBanned: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     pendingMembers: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
-    roles: { type: [String], default: [] },
     isPublic: { type: Boolean },
     followers: {
       type: [Schema.Types.ObjectId],
