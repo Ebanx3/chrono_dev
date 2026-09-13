@@ -33,14 +33,40 @@ type Project = {
   createdAt: string;
   updatedAt: string;
   resources: Link[];
-  iAmMember:boolean;
-  iAmPendingMember:boolean;
+  iAmMember: boolean;
+  iAmPendingMember: boolean;
 };
 
 type ProjectWithUserFlags = Project & {
   iAmMember: boolean;
   iAmPendingMember: boolean;
-} & {permissions:Record<ProjectPermission, boolean>};
+} & { permissions: Record<ProjectPermission, boolean> };
+
+type ProjectActivityItem = {
+  _id: string;
+  type: "discussion" | "vote" | "ticket";
+  author: { _id: string; username: string };
+  projectId:string;
+  discussion?: {
+    title: string;
+    content: string;
+    status: "open" | "closed";
+  };
+  vote?: {
+    details: string;
+    options: string[];
+    votes: { userId: string; option: string }[];
+    status: "open" | "closed";
+  };
+  ticketActivity?: {
+    ticketId: string;
+    action: "created" | "updated" | "deleted" | "assigned";
+    assignedTo?: { userId: string | { _id: string; username: string } };
+    createdAt?: string;
+  };
+  createdAt: string;
+};
+
 
 type ProjectMember = {
   user: { _id: string; username: string };
@@ -95,7 +121,7 @@ type ServerResponse<T> = {
   success: boolean;
   message: string;
   data?: T;
-  isLoggedIn:boolean;
+  isLoggedIn: boolean;
 };
 
 type Reply = {
@@ -105,3 +131,13 @@ type Reply = {
   content: string;
   createdAt: string;
 };
+
+type AddProjectActivity =
+  | { type: "discussion"; title: string; content: string }
+  | { type: "vote"; details: string; options: string[] }
+  | {
+      type: "ticket";
+      ticketId: string;
+      action: "created" | "updated" | "deleted" | "assigned";
+      assignedTo?: string;
+    };

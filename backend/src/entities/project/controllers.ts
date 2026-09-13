@@ -56,8 +56,6 @@ const createProject = async (
       return;
     }
 
-    await ProjectActivityModel.createProjectActivity(newProject._id!.toString());
-
     res.status(201).json({
       success: true,
       message: "Proyecto creado correctamente",

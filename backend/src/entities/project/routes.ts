@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ProjectController } from "./controllers";
 import { mustBeAuthenticated } from "../../middlewares/mustBeAuthenticated";
+import { ProjectActivityController } from "../project_activity/controller";
 
 const router = Router();
 
@@ -14,5 +15,7 @@ router.patch("/:projectId/rejectPendingMember/:userId", mustBeAuthenticated, Pro
 router.patch("/:projectId/editMember/:userId", mustBeAuthenticated, ProjectController.editMember);
 router.patch("/:projectId/removeMember/:userId", mustBeAuthenticated, ProjectController.removeMember);
 router.get("/:projectId", ProjectController.getProjectById);
+router.post("/:projectId/activity", mustBeAuthenticated, ProjectActivityController.addActivity);
+router.get("/:projectId/activity", ProjectActivityController.getActivity);
 
 export default router;

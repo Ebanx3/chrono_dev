@@ -4,6 +4,7 @@ import { LoaderSVG } from "../../../assets/LoaderSVG";
 import { ProjectDetails } from "./ProjectDetails";
 import { Members } from "./Members";
 import { PendingMembers } from "./PendingMembers";
+import { ProjectActivity } from "./ProjectActivity";
 
 export const Project = () => {
   const { projectId } = useParams();
@@ -58,6 +59,10 @@ export const Project = () => {
           {!data?.isPublic && data?.permissions["project.pending_members.view"] && <PendingMembers pendingMembers={data.pendingMembers} refetchProject={refetch}/>} 
           </div>
       </div>
+      <ProjectActivity
+        projectId={projectId}
+        canAddActivity={Boolean(data?.permissions?.["project.activity.add"])}
+      />
     </>
   );
 };

@@ -183,3 +183,37 @@ export const removeMember = async (projectId: string, userId: string) => {
     return { success: false, message: "Error al intentar conectar con el servidor" };
   }
 };
+
+export const getProjectActivity = async (projectId: string) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/project/${projectId}/activity`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+    });
+    return (await response.json()) as ServerResponse<ProjectActivity>;
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Error al intentar conectar con el servidor" };
+  }
+};
+
+export const addActivityToProject = async ({
+  projectId,
+  activity,
+}: {
+  projectId: string;
+  activity: AddProjectActivity;
+}) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/project/${projectId}/activity`, {
+      headers: { "content-type": "application/json" },
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify(activity),
+    });
+    return (await response.json()) as ServerResponse<ProjectActivity>;
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Error al intentar conectar con el servidor" };
+  }
+};

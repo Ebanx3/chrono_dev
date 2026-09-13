@@ -34,17 +34,14 @@ export interface IActivityItem {
   vote?: Vote;
   ticketActivity?: TicketsActivity;
   messages: DiscussionMessage[];
-}
-
-export interface IProjectActivity extends Document {
+  author: Types.ObjectId;
   projectId: Types.ObjectId;
-  activityItems: IActivityItem[];
 }
 
 const discussionMessageSchema = new Schema<DiscussionMessage>(
   {
     content: { type: String, required: true },
-    author: { userId: { type: Schema.Types.ObjectId, ref: "User" } },
+    author:  { type: Schema.Types.ObjectId, ref: "User" } ,
   },
   { timestamps: true },
 );
@@ -53,7 +50,6 @@ const discussionSchema = new Schema<Discussion>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
-    author: { userId: { type: Schema.Types.ObjectId, ref: "User" } },
     status: {
       type: String,
       enum: ["open", "closed"],
@@ -93,10 +89,7 @@ const ticketsActivitySchema = new Schema<TicketsActivity>(
       enum: ["created", "updated", "deleted", "assigned"],
       required: true,
     },
-    user: { userId: { type: Schema.Types.ObjectId, ref: "User" } },
-    assignedTo: {
-      userId: { type: Schema.Types.ObjectId, ref: "User" },
-    },
+    assignedTo: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },
 );
@@ -112,24 +105,13 @@ const activityItemSchema = new Schema<IActivityItem>(
     vote: { type: voteSchema },
     ticketActivity: { type: ticketsActivitySchema },
     messages: { type: [discussionMessageSchema], default: [] },
-  },
-  { timestamps: true },
-);
-
-const projectActivitySchema = new Schema<IProjectActivity>(
-  {
-    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true, unique:true },
-    activityItems: { type: [activityItemSchema], default: [] },
+    author: { type: Schema.Types.ObjectId, ref: "User" },
+    projectId: { type: Schema.Types.ObjectId, ref: "Project" },
   },
   { timestamps: true },
 );
 
 export const ActivityItem = model<IActivityItem>(
-  "ActivityItem",
-  activityItemSchema,
-);
-
-export const ProjectActivity = model<IProjectActivity>(
   "ProjectActivity",
-  projectActivitySchema,
+  activityItemSchema,
 );
