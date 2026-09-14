@@ -49,8 +49,23 @@ export const ProjectActivity = ({
               <span>{item.type === "discussion" ? "Discusión" : item.type === "vote" ? "Votación" : "Ticket"}</span>
               <time>{new Date(item.createdAt).toLocaleString()}</time>
             </div>
-            {item.type === "discussion" && item.discussion && <DiscussionActivity discussion={item.discussion} authorUsername={item.author.username}/>}
-            {item.type === "vote" && item.vote && <VoteActivity vote={item.vote} />}
+            {item.type === "discussion" && item.discussion && (
+              <DiscussionActivity
+                activityId={item._id}
+                projectId={projectId}
+                discussion={item.discussion}
+                authorUsername={item.author.username}
+                onMessageAdded={() => void refetch()}
+              />
+            )}
+            {item.type === "vote" && item.vote && (
+              <VoteActivity
+                activityId={item._id}
+                projectId={projectId}
+                vote={item.vote}
+                onVoteAdded={() => void refetch()}
+              />
+            )}
             {item.type === "ticket" && item.ticketActivity && <TicketActivity ticketActivity={item.ticketActivity} />}
           </article>
         ))}

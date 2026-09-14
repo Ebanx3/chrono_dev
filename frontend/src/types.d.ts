@@ -51,6 +51,12 @@ type ProjectActivityItem = {
     title: string;
     content: string;
     status: "open" | "closed";
+    messages: {
+      _id: string;
+      content: string;
+      author: { _id: string; username: string };
+      createdAt: string;
+    }[];
   };
   vote?: {
     details: string;

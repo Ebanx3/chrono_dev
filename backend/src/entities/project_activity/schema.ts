@@ -8,11 +8,17 @@ export interface Vote {
   status: "open" | "closed";
 }
 
+export interface DiscussionMessage {
+  content: string;
+  author: Types.ObjectId;
+}
+
 export interface Discussion {
   title: string;
   content: string;
-  author: { userId: Types.ObjectId };
+  author: Types.ObjectId;
   status: "open" | "closed";
+  messages?: DiscussionMessage[];
 }
 
 export interface TicketsActivity {
@@ -21,11 +27,6 @@ export interface TicketsActivity {
   timestamp: Date;
   user: { userId: Types.ObjectId };
   assignedTo?: { userId: Types.ObjectId };
-}
-
-export interface DiscussionMessage {
-  content: string;
-  author: { userId: Types.ObjectId };
 }
 
 export interface IActivityItem {
@@ -41,7 +42,7 @@ export interface IActivityItem {
 const discussionMessageSchema = new Schema<DiscussionMessage>(
   {
     content: { type: String, required: true },
-    author:  { type: Schema.Types.ObjectId, ref: "User" } ,
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true },
 );
@@ -50,11 +51,13 @@ const discussionSchema = new Schema<Discussion>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     status: {
       type: String,
       enum: ["open", "closed"],
       default: "open",
     },
+    messages: {type:[discussionMessageSchema],default:[]}
   },
   { timestamps: true },
 );

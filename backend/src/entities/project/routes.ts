@@ -16,6 +16,8 @@ router.patch("/:projectId/editMember/:userId", mustBeAuthenticated, ProjectContr
 router.patch("/:projectId/removeMember/:userId", mustBeAuthenticated, ProjectController.removeMember);
 router.get("/:projectId", ProjectController.getProjectById);
 router.post("/:projectId/activity", mustBeAuthenticated, ProjectActivityController.addActivity);
+router.post("/:projectId/activity/:activityId/messages", mustBeAuthenticated, ProjectActivityController.addDiscussionMessage);
+router.post("/:projectId/activity/:activityId/votes", mustBeAuthenticated, ProjectActivityController.addVote);
 router.get("/:projectId/activity", ProjectActivityController.getActivity);
 
 export default router;

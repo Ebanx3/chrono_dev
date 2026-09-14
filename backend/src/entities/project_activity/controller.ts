@@ -5,7 +5,11 @@ import { hasPermission, memberInProject } from "../../utils/memberInProject";
 import { Permission } from "../project/schema";
 import { ProjectModel } from "../project/model";
 import { ProjectActivityModel } from "./model";
-import { validateBodyAddActivity } from "./zod";
+import {
+  validateBodyAddActivity,
+  validateBodyAddDiscussionMessage,
+  validateBodyAddVote,
+} from "./zod";
 
 const addActivity = async (
   req: RequestWithData,
@@ -58,7 +62,7 @@ const addActivity = async (
           ? {
               title: validatedBody.title,
               content: validatedBody.content,
-              author: { userId: new Types.ObjectId(req.user!.id) },
+              author: new Types.ObjectId(req.user!.id),
               status: "open",
             }
           : undefined,
@@ -77,7 +81,7 @@ const addActivity = async (
               ticketId: new Types.ObjectId(validatedBody.ticketId),
               action: validatedBody.action,
               timestamp: new Date(),
-              user: { userId: new Types.ObjectId(req.user!.id) },
+              user: { userId: new Types.ObjectId(String(req.user!.id)) },
               assignedTo: validatedBody.assignedTo
                 ? { userId: new Types.ObjectId(validatedBody.assignedTo) }
                 : undefined,
@@ -109,6 +113,84 @@ const addActivity = async (
         message: "Error del servidor",
         isLoggedIn: true,
       });
+  }
+};
+
+const addDiscussionMessage = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId, activityId } = req.params;
+    const validatedBody = await validateBodyAddDiscussionMessage(req.body);
+    if (typeof validatedBody === "string") {
+      res.status(400).json({ success: false, message: validatedBody, isLoggedIn: true });
+      return;
+    }
+
+    const project = await ProjectModel.getById(projectId);
+    if (!project || typeof project === "string") {
+      res.status(404).json({ success: false, message: "Proyecto no encontrado", isLoggedIn: true });
+      return;
+    }
+    if (!memberInProject(project, req.user!.id)) {
+      res.status(403).json({ success: false, message: "Debes ser miembro del proyecto", isLoggedIn: true });
+      return;
+    }
+
+    const result = await ProjectActivityModel.addDiscussionMessage({
+      projectId,
+      activityId,
+      content: validatedBody.content,
+      author: new Types.ObjectId(String(req.user!.id)),
+    });
+    if (typeof result === "string") {
+      res.status(404).json({ success: false, message: result, isLoggedIn: true });
+      return;
+    }
+    res.status(201).json({ success: true, message: "Mensaje agregado correctamente", data: result, isLoggedIn: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  }
+};
+
+const addVote = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  try {
+    const { projectId, activityId } = req.params;
+    const validatedBody = await validateBodyAddVote(req.body);
+    if (typeof validatedBody === "string") {
+      res.status(400).json({ success: false, message: validatedBody, isLoggedIn: true });
+      return;
+    }
+
+    const project = await ProjectModel.getById(projectId);
+    if (!project || typeof project === "string") {
+      res.status(404).json({ success: false, message: "Proyecto no encontrado", isLoggedIn: true });
+      return;
+    }
+    if (!memberInProject(project, req.user!.id)) {
+      res.status(403).json({ success: false, message: "Debes ser miembro del proyecto", isLoggedIn: true });
+      return;
+    }
+
+    const result = await ProjectActivityModel.addVote({
+      projectId,
+      activityId,
+      option: validatedBody.option,
+      userId: new Types.ObjectId(String(req.user!.id)),
+    });
+    if (typeof result === "string") {
+      res.status(400).json({ success: false, message: result, isLoggedIn: true });
+      return;
+    }
+    res.status(201).json({ success: true, message: "Voto agregado correctamente", data: result, isLoggedIn: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error del servidor", isLoggedIn: true });
   }
 };
 
@@ -171,4 +253,9 @@ const getActivity = async (
   }
 };
 
-export const ProjectActivityController = { addActivity, getActivity };
+export const ProjectActivityController = {
+  addActivity,
+  getActivity,
+  addDiscussionMessage,
+  addVote,
+};

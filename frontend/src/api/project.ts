@@ -18,7 +18,7 @@ export const createProject = async ({
       method: "post",
       body: JSON.stringify({ name, details, techs, isPublic }),
     });
-    const json = (await data.json()) as ServerResponse<null>;
+    const json = (await data.json()) as ServerResponse<string>;
     return json;
   } catch (error) {
     console.log(error);
@@ -190,7 +190,7 @@ export const getProjectActivity = async (projectId: string) => {
       headers: { "content-type": "application/json" },
       credentials: "include",
     });
-    return (await response.json()) as ServerResponse<ProjectActivity>;
+    return (await response.json()) as ServerResponse<ProjectActivityItem[]>;
   } catch (error) {
     console.log(error);
     return { success: false, message: "Error al intentar conectar con el servidor" };
@@ -211,7 +211,59 @@ export const addActivityToProject = async ({
       method: "POST",
       body: JSON.stringify(activity),
     });
-    return (await response.json()) as ServerResponse<ProjectActivity>;
+    return (await response.json()) as ServerResponse<null>;
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Error al intentar conectar con el servidor" };
+  }
+};
+
+export const addDiscussionMessage = async ({
+  projectId,
+  activityId,
+  content,
+}: {
+  projectId: string;
+  activityId: string;
+  content: string;
+}) => {
+  try {
+    const response = await fetch(
+      `${SERVER_URL}/project/${projectId}/activity/${activityId}/messages`,
+      {
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        method: "POST",
+        body: JSON.stringify({ content }),
+      },
+    );
+    return (await response.json()) as ServerResponse<ProjectActivityItem>;
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Error al intentar conectar con el servidor" };
+  }
+};
+
+export const addVote = async ({
+  projectId,
+  activityId,
+  option,
+}: {
+  projectId: string;
+  activityId: string;
+  option: string;
+}) => {
+  try {
+    const response = await fetch(
+      `${SERVER_URL}/project/${projectId}/activity/${activityId}/votes`,
+      {
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        method: "POST",
+        body: JSON.stringify({ option }),
+      },
+    );
+    return (await response.json()) as ServerResponse<ProjectActivityItem>;
   } catch (error) {
     console.log(error);
     return { success: false, message: "Error al intentar conectar con el servidor" };
