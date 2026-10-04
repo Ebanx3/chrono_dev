@@ -25,6 +25,37 @@ export enum Permission {
   ActivityDelete = "project.activity.delete",
 }
 
+const projectSettingsSchema = new Schema(
+  {
+    autoAssignTicket: { type: Boolean, default: false },
+    areas: { type: [String] },
+    maxTicketsPerMember: { type: Number, default: 2, min: 1 },
+    joinMode: {
+      type: String,
+      enum: ["open", "request"],
+      default: "request",
+    },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+    },
+  },
+  { _id: false, timestamps: false },
+);
+
+export type ProjectJoinMode = "open" | "request";
+
+export type ProjectVisibility = "public" | "private";
+
+export interface ProjectSettings {
+  autoAssignTicket: boolean;
+  areas: string[];
+  maxTicketsPerMember: number;
+  joinMode: ProjectJoinMode;
+  visibility: ProjectVisibility;
+}
+
 export interface IProject extends Document {
   name: string;
   details: string;
@@ -34,13 +65,15 @@ export interface IProject extends Document {
   resources: { name: string; url: string }[];
   members: {
     user: Types.ObjectId;
-    role?: String;
+    role?: string;
     permissions?: Permission[];
+    areas?: string[];
   }[];
   membersBanned: Types.ObjectId[];
   pendingMembers: Types.ObjectId[];
   isPublic: boolean;
   followers: Array<Types.ObjectId>;
+  settings: ProjectSettings;
 }
 
 const membersSchema = new Schema(
@@ -49,6 +82,11 @@ const membersSchema = new Schema(
     role: {
       type: String,
       required: false,
+    },
+    areas: {
+      type: [String],
+      required: false,
+      default: [],
     },
     permissions: {
       type: [String],
@@ -70,16 +108,21 @@ const resourcesSchema = new Schema(
 
 const projectSchema = new Schema<IProject>(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true, trim: true },
     details: { type: String },
     founder: { type: Schema.Types.ObjectId, ref: "User", required: true },
     ticketsCount: { type: Number, default: 0, min: 0 },
     techs: [String],
     resources: [resourcesSchema],
     members: [membersSchema],
-    membersBanned: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
-    pendingMembers: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
+    membersBanned: [
+      { type: Schema.Types.ObjectId, ref: "User", required: true },
+    ],
+    pendingMembers: [
+      { type: Schema.Types.ObjectId, ref: "User", required: true },
+    ],
     isPublic: { type: Boolean },
+    settings:{type: projectSettingsSchema},
     followers: {
       type: [Schema.Types.ObjectId],
       ref: "User",

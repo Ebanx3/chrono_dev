@@ -22,6 +22,17 @@ const createProjectSchema = z.object({
     .min(1, "Debes especificar al menos una tecnología")
     .max(20, "No puedes agregar más de 20 tecnologías"),
 
+  areas: z
+    .array(
+      z
+        .string("Cada área debe ser un texto válido")
+        .trim()
+        .min(1, "Cada área no puede estar vacía")
+        .max(60, "Cada área no puede superar los 60 caracteres"),
+    )
+    .min(1, "Debes especificar al menos un área para el proyecto")
+    .max(20, "No puedes agregar más de 20 áreas"),
+
   isPublic: z.boolean().default(true), // por defecto los proyectos son públicos
 });
 
@@ -43,41 +54,65 @@ const editMemberSchema = z.object({
     .trim()
     .min(1, "El rol no puede estar vacío")
     .max(50, "El rol no puede superar los 50 caracteres"),
-  permissions: z.array(z.enum(Permission)),
+  permissions: z.array(z.enum(Permission)).default([]),
+  areas: z
+    .array(
+      z
+        .string("Cada área debe ser un texto válido")
+        .trim()
+        .min(1, "Cada área no puede estar vacía")
+        .max(50, "Cada área no puede superar los 50 caracteres"),
+    )
+    .max(20, "No puedes agregar más de 20 áreas")
+    .default([]),
 });
 
-export const validateBodyCreateProject = async (body: object) => {
-  try {
-    return await createProjectSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
+  const updateProjectSettingsSchema = z
+    .object({
+      autoAssignTicket: z.boolean().optional(),
+      areas: z
+        .array(
+          z
+            .string("Cada área debe ser un texto válido")
+            .trim()
+            .min(1, "Cada área no puede estar vacía")
+            .max(60, "Cada área no puede superar los 60 caracteres"),
+        )
+        .max(20, "No puedes agregar más de 20 áreas")
+        .optional(),
+      maxTicketsPerMember: z
+        .number("El máximo de tickets debe ser un número")
+        .int("El máximo de tickets debe ser un número entero")
+        .min(1, "El máximo de tickets debe ser al menos 1")
+        .optional(),
+      joinMode: z.enum(["open", "request"], {
+        message: "El modo de ingreso no es válido",
+      }).optional(),
+      visibility: z.enum(["public", "private"], {
+        message: "La visibilidad del proyecto no es válida",
+      }).optional(),
+    })
+    .strict()
+    .refine((settings) => Object.keys(settings).length > 0, {
+      message: "Debes proporcionar al menos un ajuste para actualizar",
+    });
+
+
+export const ProjectSchemas = {
+  createProjectSchema,
+  addResourceSchema,
+  editMemberSchema,
+  updateProjectSettingsSchema,
 };
 
-export const validateBodyAddResource = async (body: object) => {
-  try {
-    return await addResourceSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+export type CreateProjectBody = z.output<typeof createProjectSchema>;
+export type AddResourceBody = z.output<typeof addResourceSchema>;
+export type EditMemberBody = z.output<typeof editMemberSchema>;
+export type UpdateProjectSettingsBody = z.output<
+  typeof updateProjectSettingsSchema
+>;
 
-export const validateBodyEditMember = async (body: object) => {
-  try {
-    return await editMemberSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+
+
+
+

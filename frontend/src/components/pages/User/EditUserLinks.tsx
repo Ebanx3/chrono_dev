@@ -3,24 +3,29 @@ import { DeleteSVG } from "../../../assets/DeleteSVG";
 import { CheckSVG } from "../../../assets/CheckSVG";
 import { XSVG } from "../../../assets/XSVG";
 
-export const EditUserLinks = ({ links, setLinks }: { links: Link[], setLinks: React.Dispatch<React.SetStateAction<Link[]>> }) => {
-  
-  const [newLink, setNewLink] = useState<{ site: string; link: string }>({
-    site: "",
-    link: "",
+export const EditUserLinks = ({
+  links,
+  setLinks,
+}: {
+  links: UserLink[];
+  setLinks: React.Dispatch<React.SetStateAction<UserLink[]>>;
+}) => {
+  const [newLink, setNewLink] = useState<{ name: string; url: string }>({
+    name: "",
+    url: "",
   });
   const [showInputs, setShowInputs] = useState<boolean>(false);
 
   const addLink = () => {
-    if (newLink.site && newLink.link) {
+    if (newLink.name && newLink.url) {
       if (
-        !newLink.link.startsWith("http://") &&
-        !newLink.link.startsWith("https://")
+        !newLink.url.startsWith("http://") &&
+        !newLink.url.startsWith("https://")
       ) {
-        newLink.link = "https://" + newLink.link;
+        newLink.url = "https://" + newLink.url;
       }
-      setLinks([...links, { name: newLink.site, url: newLink.link }]);
-      setNewLink({ site: "", link: "" });
+      setLinks([...links, { site: newLink.name, link: newLink.url }]);
+      setNewLink({ name: "", url: "" });
       setShowInputs(false);
     }
   };
@@ -48,15 +53,15 @@ export const EditUserLinks = ({ links, setLinks }: { links: Link[], setLinks: Re
           <input
             type="text"
             placeholder="Sitio (e.g., GitHub)"
-            value={newLink.site}
-            onChange={(e) => setNewLink({ ...newLink, site: e.target.value })}
+            value={newLink.name}
+            onChange={(e) => setNewLink({ ...newLink, name: e.target.value })}
             className="border text-slate-200 border-slate-600 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition focus:outline-none text-sm w-1/3"
           />
           <input
             type="text"
             placeholder="Enlace (e.g., github.com/username)"
-            value={newLink.link}
-            onChange={(e) => setNewLink({ ...newLink, link: e.target.value })}
+            value={newLink.url}
+            onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
             className="border text-slate-200 border-slate-600 rounded-md focus:ring-2 focus:ring-slate-400 focus:border-slate-400 p-2 transition focus:outline-none text-sm w-2/3"
           />
           <button
@@ -77,13 +82,10 @@ export const EditUserLinks = ({ links, setLinks }: { links: Link[], setLinks: Re
       )}
 
       <div className="">
-        {links.map((link, index) => (
-          <div
-            key={index}
-            className="flex gap-2 mb-2 text-sm"
-          >
-            <span className="text-slate-400 w-1/7">{link.name}:</span>
-            <span className="flex-1 text-slate-600">{link.url}</span>
+        {links.map((url, index) => (
+          <div key={index} className="flex gap-2 mb-2 text-sm">
+            <span className="text-slate-400 w-1/7">{url.site}:</span>
+            <span className="flex-1 text-slate-600">{url.link}</span>
             <button
               onClick={() => removeLink(index)}
               className="text-red-500 text-xs flex items-center m-auto hover:text-red-700 cursor-pointer"

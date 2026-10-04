@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { addActivityToProject } from "../../../api/project";
-import { LoaderSVG } from "../../../assets/LoaderSVG";
-import { Form } from "../../ui/Forms/Form";
-import { FormButton } from "../../ui/Forms/FormButton";
-import { FormInput } from "../../ui/Forms/FormInput";
+import { addActivityToProject } from "../../../../api/project";
+import { LoaderSVG } from "../../../../assets/LoaderSVG";
+import { Form } from "../../../ui/Forms/Form";
+import { FormButton } from "../../../ui/Forms/FormButton";
+import { FormInput } from "../../../ui/Forms/FormInput";
 
 type ActivityType = AddProjectActivity["type"];
 
@@ -24,6 +24,7 @@ export const AddActivityModal = ({
   const [content, setContent] = useState("");
   const [details, setDetails] = useState("");
   const [options, setOptions] = useState("");
+  const [closesAt, setClosesAt] = useState("");
   const [ticketId, setTicketId] = useState("");
   const [action, setAction] = useState<"created" | "updated" | "deleted" | "assigned">("created");
   const [assignedTo, setAssignedTo] = useState("");
@@ -41,11 +42,23 @@ export const AddActivityModal = ({
       activity = { type, title: title.trim(), content: content.trim() };
     } else if (type === "vote") {
       const voteOptions = options.split(",").map((option) => option.trim()).filter(Boolean);
-      if (!details.trim() || voteOptions.length < 2) {
-        toast.error("La votación necesita detalles y al menos dos opciones.");
+      const closingDate = new Date(closesAt);
+      if (
+        !details.trim() ||
+        voteOptions.length < 2 ||
+        !closesAt ||
+        Number.isNaN(closingDate.getTime()) ||
+        closingDate.getTime() <= Date.now()
+      ) {
+        toast.error("Completa los detalles, dos opciones y una fecha de cierre futura.");
         return;
       }
-      activity = { type, details: details.trim(), options: voteOptions };
+      activity = {
+        type,
+        details: details.trim(),
+        options: voteOptions,
+        closesAt: closingDate.toISOString(),
+      };
     } else {
       if (!ticketId.trim()) {
         toast.error("El identificador del ticket es obligatorio.");
@@ -105,8 +118,18 @@ export const AddActivityModal = ({
 
         {type === "vote" && (
           <>
-            <FormInput label="Detalles" name="vote-details" type="text" placeholder="Pregunta o detalles de la votación" inputValue={details} setInputValue={setDetails} />
-            <FormInput label="Opciones" name="vote-options" type="text" placeholder="Opciones separadas por comas" inputValue={options} setInputValue={setOptions} />
+            <FormInput label="Detalles" name="vote-details" type="text" placeholder="Pregunta o detalles de la votación" inputValue={details} setInputValue={setDetails}/>
+            <FormInput label="Opciones" name="vote-options" type="text" placeholder="Opciones separadas por comas" inputValue={options} setInputValue={setOptions}  helpIconContent="Las opciones a votar separadas por ','"/>
+            <label htmlFor="vote-closes-at" className="text-slate-400 font-medium text-sm">Fecha de cierre</label>
+            <input
+              id="vote-closes-at"
+              type="datetime-local"
+              value={closesAt}
+              min={new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16)}
+              onChange={(event) => setClosesAt(event.target.value)}
+              className="mb-4 w-full rounded-md border border-slate-700 bg-slate-800 p-2 text-slate-300 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              required
+            />
           </>
         )}
 

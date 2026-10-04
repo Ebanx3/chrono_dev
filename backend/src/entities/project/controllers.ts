@@ -1,59 +1,40 @@
 import { Response } from "express";
 import { RequestWithData, ServerResponse } from "../../types";
-import {
-  validateBodyAddResource,
-  validateBodyCreateProject,
-  validateBodyEditMember,
-} from "./zod";
 import { ProjectModel } from "./model";
+import { CompletedProjectModel } from "../completed_project/model";
+import type { CreateCompletedProjectInput } from "../completed_project/zod";
+import type {
+  AddResourceBody,
+  CreateProjectBody,
+  EditMemberBody,
+  UpdateProjectSettingsBody,
+} from "./zod";
 import { UserModel } from "../user/model";
 import { ObjectId } from "mongoose";
-import { IProject, Permission } from "./schema";
+import { IProject} from "./schema";
+import { HttpError } from "../../utils/httpError";
 import {
-  hasPermission,
   memberInProject,
   pendingMemberInProject,
   projectWithUserFlags,
 } from "../../utils/memberInProject";
-import { ProjectActivityModel } from "../project_activity/model";
 
 const createProject = async (
-  req: RequestWithData,
+  req: RequestWithData<CreateProjectBody>,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const validatedBody = await validateBodyCreateProject(req.body);
-    if (typeof validatedBody === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: validatedBody, isLoggedIn: true });
-      return;
-    }
-
     const newProject = await ProjectModel.create({
       founder: req.user!.id,
-      ...validatedBody,
+      ...req.body,
     });
-
-    if (typeof newProject === "string") {
-      res.status(400).json({
-        success: false,
-        message: newProject,
-        isLoggedIn: true,
-      });
-      return;
-    }
 
     const updatedUser = await UserModel.addNewProjectToUser({
       userId: req.user!.id,
       projectId: (newProject._id as ObjectId).toString(),
       projectName: newProject.name,
     });
-    if (typeof updatedUser === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: updatedUser, isLoggedIn: true });
-      return;
+    if (!updatedUser) {
+      throw new HttpError(404, "Usuario no encontrado");
     }
 
     res.status(201).json({
@@ -62,354 +43,243 @@ const createProject = async (
       data: (newProject._id as ObjectId).toString(),
       isLoggedIn: true,
     });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
 };
 
 const getProjects = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const projects = await ProjectModel.getAll();
+  const projects = await ProjectModel.getAll();
+  const data = projects.map((project: IProject) => ({
+    ...project.toObject(),
+    iAmMember: memberInProject(project, req.user?.id),
+    iAmPendingMember: pendingMemberInProject(project, req.user?.id),
+  }));
 
-    const p = (projects as Array<IProject>).map((project: IProject) => {
-      return {
-        ...project.toObject(),
-        iAmMember: memberInProject(project, req.user?.id),
-        iAmPendingMember: pendingMemberInProject(project, req.user?.id),
-      };
-    });
+  res.status(200).json({
+    success: true,
+    message: "Proyectos obtenidos correctamente",
+    data,
+    isLoggedIn: Boolean(req.user),
+  });
+};
 
-    res.status(200).json({
-      success: true,
-      message: "Proyectos obtenidos correctamente",
-      data: p,
-      isLoggedIn: req.user ? true : false,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Error del servidor",
-      isLoggedIn: req.user ? true : false,
-    });
-  }
+const getProjectsByUserId = async (
+  req: RequestWithData,
+  res: Response<ServerResponse>,
+) => {
+  const { userId } = req.params;
+  const projects = await ProjectModel.getByUserId(userId);
+  const data = projects.map((project: IProject) => ({
+    ...project.toObject(),
+    iAmMember: memberInProject(project, req.user?.id),
+    iAmPendingMember: pendingMemberInProject(project, req.user?.id),
+  }));
+
+  res.status(200).json({
+    success: true,
+    message: "Proyectos obtenidos correctamente",
+    data,
+    isLoggedIn: Boolean(req.user),
+  });
 };
 
 const getProjectById = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId } = req.params;
-    const project = await ProjectModel.getById(projectId);
+  const { projectId } = req.params;
+  const project = await ProjectModel.getById(projectId);
 
-    if (!project || typeof project === "string") {
-      res.status(404).json({
-        success: false,
-        message: "Proyecto no encontrado",
-        isLoggedIn: req.user ? true : false,
-      });
-      return;
-    }
-
-    if (!project.isPublic && !memberInProject(project, req.user?.id)) {
-      res.status(403).json({
-        success: false,
-        message: "Proyecto privado",
-        isLoggedIn: req.user ? true : false,
-      });
-      return;
-    }
-
-    const projectWithPermissions = projectWithUserFlags(project,req.user?.id)
-
-    res.status(200).json({
-      success: true,
-      message: "Proyecto obtenido correctamente",
-      data: projectWithPermissions,
-      isLoggedIn: req.user ? true : false,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Error del servidor",
-      isLoggedIn: req.user ? true : false,
-    });
+  if (!project) {
+    throw new HttpError(404, "Proyecto no encontrado");
   }
+
+  if (!project.isPublic && !memberInProject(project, req.user?.id)) {
+    throw new HttpError(403, "Proyecto privado");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Proyecto obtenido correctamente",
+    data: projectWithUserFlags(project, req.user?.id),
+    isLoggedIn: Boolean(req.user),
+  });
+};
+
+const completeProject = async (
+  req: RequestWithData<CreateCompletedProjectInput>,
+  res: Response<ServerResponse>,
+) => {
+  const project = await ProjectModel.getById(req.params.projectId);
+  if (!project) {
+    throw new HttpError(404, "Proyecto no encontrado");
+  }
+
+  const completedProject = await CompletedProjectModel.create({
+    ...req.body,
+    name: project.name,
+    details: project.details,
+    techs: project.techs,
+    members: project.members.map((member) => ({
+      userId: member.user._id,
+      role: member.role ?? "member",
+    })),
+    followers: project.followers,
+    completedAt: new Date(),
+  });
+
+  await ProjectModel.deleteById(req.params.projectId);
+
+  res.status(201).json({
+    success: true,
+    message: "Proyecto finalizado correctamente",
+    data: completedProject._id,
+    isLoggedIn: true,
+  });
 };
 
 const addResourceToProject = async (
-  req: RequestWithData,
+  req: RequestWithData<AddResourceBody>,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId } = req.params;
-    const validatedBody = await validateBodyAddResource(req.body);
+  const result = await ProjectModel.addResource(req.params.projectId, req.body);
+  res.status(200).json({
+    success: true,
+    message: "Recurso agregado correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
+};
 
-    if (typeof validatedBody === "string") {
-      res.status(400).json({
-        success: false,
-        message: validatedBody,
-        isLoggedIn: true,
-      });
-      return;
-    }
+const updateProjectSettings = async (
+  req: RequestWithData<UpdateProjectSettingsBody>,
+  res: Response<ServerResponse>,
+) => {
+  const result = await ProjectModel.updateSettings(
+    req.params.projectId,
+    req.body,
+  );
 
-    const { name, url } = validatedBody;
-
-    const project = await ProjectModel.getById(projectId);
-    if (project != null && typeof project != "string" && !hasPermission({ project, userId: req.user?.id, permission: Permission.PendingMembersView })) {
-      res.status(403).json({ success: false, message: "No tienes permisos para realizar esta acción", isLoggedIn: true });
-      return;
-    }
-
-    const result = await ProjectModel.addResource(projectId, { name, url });
-
-    if (typeof result === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Recurso agregado correctamente", data: result, isLoggedIn: true });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Ajustes del proyecto actualizados correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const joinAsPendingMember = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId } = req.params;
+  const result = await ProjectModel.joinAsPendingMember(
+    req.params.projectId,
+    req.user!.id,
+  );
 
-    const result = await ProjectModel.joinAsPendingMember(projectId,req.user?.id);
-    if (typeof result === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Solicitud enviada correctamente", data: result, isLoggedIn: true });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Solicitud enviada correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const joinAsMember = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId } = req.params;
+  const result = await ProjectModel.joinAsMember(
+    req.params.projectId,
+    req.user!.id,
+  );
 
-    const result = await ProjectModel.joinAsMember(projectId,req.user?.id);
-    if (typeof result === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Solicitud enviada correctamente", data: result, isLoggedIn: true });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Solicitud enviada correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const acceptPendingMember = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId, userId } = req.params;
+  const result = await ProjectModel.acceptPendingMember(
+    req.params.projectId,
+    req.params.userId,
+  );
 
-    const result = await ProjectModel.acceptPendingMember(projectId, userId);
-    if (typeof result === "string") {
-      res.status(400).json({
-        success: false,
-        message: result,
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Miembro aceptado correctamente",
-      data: result,
-      isLoggedIn: true,
-    });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Miembro aceptado correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const rejectPendingMember = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId, userId } = req.params;
+  const result = await ProjectModel.rejectPendingMember(
+    req.params.projectId,
+    req.params.userId,
+  );
 
-    const result = await ProjectModel.rejectPendingMember(projectId, userId);
-    if (typeof result === "string") {
-      res.status(400).json({
-        success: false,
-        message: result,
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Miembro rechazado correctamente",
-      data: result,
-      isLoggedIn: true,
-    });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(200).json({
+    success: true,
+    message: "Miembro rechazado correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const editMember = async (
-  req: RequestWithData,
+  req: RequestWithData<EditMemberBody>,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId, userId } = req.params;
-    const validatedBody = await validateBodyEditMember(req.body);
-
-    if (typeof validatedBody === "string") {
-      res.status(400).json({
-        success: false,
-        message: validatedBody,
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    const project = await ProjectModel.getById(projectId);
-    if (!project || typeof project === "string") {
-      res.status(404).json({
-        success: false,
-        message: "Proyecto no encontrado",
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    if (!hasPermission({ project, userId: req.user?.id, permission: Permission.MembersEditRole })) {
-      res.status(403).json({
-        success: false,
-        message: "No tienes permisos para realizar esta acción",
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    const result = await ProjectModel.editMember({
-      project,
-      userId,
-      role: validatedBody.role,
-      permissions: validatedBody.permissions,
-    });
-
-    if (typeof result === "string") {
-      res.status(400).json({
-        success: false,
-        message: result,
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Opciones del miembro actualizadas correctamente",
-      data: result,
-      isLoggedIn: true,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Error del servidor",
-      isLoggedIn: true,
-    });
+  const { projectId, userId } = req.params;
+  const project = await ProjectModel.getById(projectId);
+  if (!project) {
+    throw new HttpError(404, "Proyecto no encontrado");
   }
+
+  const result = await ProjectModel.editMember({
+    project,
+    userId,
+    role: req.body.role,
+    permissions: req.body.permissions,
+    areas: req.body.areas,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Opciones del miembro actualizadas correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const removeMember = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId, userId } = req.params;
-    const project = await ProjectModel.getById(projectId);
-
-    if (!project || typeof project === "string") {
-      res.status(404).json({ success: false, message: "Proyecto no encontrado", isLoggedIn: true });
-      return;
-    }
-
-    if (!hasPermission({ project, userId: req.user?.id, permission: Permission.MembersRemove })) {
-      res.status(403).json({
-        success: false,
-        message: "No tienes permisos para realizar esta acción",
-        isLoggedIn: true,
-      });
-      return;
-    }
-
-    const result = await ProjectModel.removeMember({ project, userId });
-    if (typeof result === "string") {
-      res.status(400).json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Miembro expulsado correctamente",
-      data: result,
-      isLoggedIn: true,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Error del servidor", isLoggedIn: true });
+  const { projectId, userId } = req.params;
+  const project = await ProjectModel.getById(projectId);
+  if (!project) {
+    throw new HttpError(404, "Proyecto no encontrado");
   }
+
+  const result = await ProjectModel.removeMember({ project, userId });
+  res.status(200).json({
+    success: true,
+    message: "Miembro expulsado correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 
@@ -418,11 +288,15 @@ export const ProjectController = {
   createProject,
   getProjects,
   getProjectById,
+  completeProject,
+  getProjectsByUserId,
   addResourceToProject,
+  updateProjectSettings,
   joinAsPendingMember,
   joinAsMember,
   acceptPendingMember,
   rejectPendingMember,
   editMember,
   removeMember,
+
 };

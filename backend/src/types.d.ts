@@ -8,9 +8,8 @@ export type ServerResponse = {
   isLoggedIn: boolean;
 };
 
-interface RequestWithData extends Request {
+export interface RequestWithData<Body = any> extends Request<any, any, Body> {
   user?: Pick<IUser, "username" | "id" | "email">;
-  validatedData?: any;
   cookies: { [key: string]: string };
 }
 

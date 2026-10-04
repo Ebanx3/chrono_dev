@@ -18,6 +18,17 @@ type ProjectPermission =
   | "project.activity.edit"
   | "project.activity.delete";
 
+type ProjectJoinMode = "open" | "request";
+type ProjectVisibility = "public" | "private";
+
+interface ProjectSettings {
+  autoAssignTicket: boolean;
+  areas: string[];
+  maxTicketsPerMember: number;
+  joinMode: ProjectJoinMode;
+  visibility: ProjectVisibility;
+}
+
 type Project = {
   _id: string;
   name: string;
@@ -25,7 +36,7 @@ type Project = {
   founder: { _id: string; username: string };
   techs: string[];
   members: ProjectMember[];
-  pendingMembers: ProjectPendingMember[];
+  pendingMembers: { _id: string; username: string }[];
   modules: string[];
   roles: string[];
   isPublic: boolean;
@@ -34,7 +45,11 @@ type Project = {
   updatedAt: string;
   resources: Link[];
   iAmMember: boolean;
+  iAmFounder: boolean;
   iAmPendingMember: boolean;
+  ticketsCount: number;
+  membersBanned: string[];
+  settings: ProjectSettings;
 };
 
 type ProjectWithUserFlags = Project & {
@@ -42,11 +57,24 @@ type ProjectWithUserFlags = Project & {
   iAmPendingMember: boolean;
 } & { permissions: Record<ProjectPermission, boolean> };
 
+type ProjectTicket = {
+  _id: string;
+  ticketId: number;
+  title: string;
+  area: string;
+  description: string;
+  durationDays: number;
+  status: "available" | "requested" | "in-progress" | "done";
+  assignedTo?: { userId: string | { _id: string; username: string } };
+  dueDate?: string;
+  createdAt: string;
+};
+
 type ProjectActivityItem = {
   _id: string;
   type: "discussion" | "vote" | "ticket";
   author: { _id: string; username: string };
-  projectId:string;
+  projectId: string;
   discussion?: {
     title: string;
     content: string;
@@ -62,6 +90,7 @@ type ProjectActivityItem = {
     details: string;
     options: string[];
     votes: { userId: string; option: string }[];
+    closesAt?: string;
     status: "open" | "closed";
   };
   ticketActivity?: {
@@ -73,11 +102,11 @@ type ProjectActivityItem = {
   createdAt: string;
 };
 
-
 type ProjectMember = {
   user: { _id: string; username: string };
   role: string;
   permissions: ProjectPermission[];
+  areas?: string[];
 };
 
 type PendingMember = {
@@ -90,23 +119,32 @@ type Link = {
   url: string;
 };
 
-type PostRecognition = {
-  mentorship_received: string[];
-  documentation_received: string[];
-  innovation_received: string[];
-  resolution_received: string[];
-  inspiration_received: string[];
+type UserLink = { site: string; link: string };
+
+type ReactionState = {
+  count: number;
+  byMe: boolean;
 };
 
-type Post = PostRecognition & {
+type Post = {
   _id: string;
   title: string;
   content: string;
   author: { _id: string; username: string };
+  authorId: string;
+  isMine: boolean;
   tags: string[];
-  likes_received: string[];
-  comments_received: string[];
+  likes: ReactionState;
+  comments_received: number;
+  recognitions: {
+    mentorship: ReactionState;
+    documentation: ReactionState;
+    innovation: ReactionState;
+    resolution: ReactionState;
+    inspiration: ReactionState;
+  };
   createdAt: string;
+  updatedAt: string;
 };
 
 type User = {
@@ -117,7 +155,7 @@ type User = {
   title?: string;
   description?: string;
   stack: string[];
-  links: Link[];
+  links: UserLink[];
   projects: Project[];
   posts: Post[];
   followers: string[];
@@ -126,7 +164,7 @@ type User = {
 type ServerResponse<T> = {
   success: boolean;
   message: string;
-  data?: T;
+  data: T;
   isLoggedIn: boolean;
 };
 
@@ -140,7 +178,7 @@ type Reply = {
 
 type AddProjectActivity =
   | { type: "discussion"; title: string; content: string }
-  | { type: "vote"; details: string; options: string[] }
+  | { type: "vote"; details: string; options: string[]; closesAt: string }
   | {
       type: "ticket";
       ticketId: string;

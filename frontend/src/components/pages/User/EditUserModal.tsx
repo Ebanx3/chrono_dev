@@ -17,7 +17,7 @@ interface Props {
 export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
   const [title, setTitle] = useState(user.title || "");
   const [description, setDescription] = useState(user.description || "");
-  const [links, setLinks] = useState<Link[]>(user.links || []);
+  const [links, setLinks] = useState<UserLink[]>(user.links || []);
   const [stack, setStack] = useState<string>(user.stack.join(", ") || "");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,6 +30,7 @@ export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
       links,
       stack: stack.split(",").map((tech) => tech.trim()).filter((tech) => tech !== ""),
     });
+    console.log(validatedData)
     if (typeof validatedData === "string") {
       toast.error(validatedData, { style: { whiteSpace: "pre-line" } });
       return;
@@ -40,6 +41,8 @@ export const EditUserModal = ({ user, closeModal, refetchUser }: Props) => {
     setIsLoading(false);
 
     if (!result.success) {
+      console.log("es esto?")
+      
       toast.error(result.message);
       return;
     }

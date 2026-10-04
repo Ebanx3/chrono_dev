@@ -31,7 +31,6 @@ export type RecognitionType = keyof typeof icons;
 interface RecognitionButtonProps {
   post: Post;
   recognitionType: RecognitionType;
-  users: string[];
 }
 
 const solveButtonStyle = (isActive:boolean, isDisabled:boolean) => {
@@ -44,42 +43,43 @@ const solveButtonStyle = (isActive:boolean, isDisabled:boolean) => {
 
 export const RecognitionButton = ({
   post,
-  users,
   recognitionType,
 }: RecognitionButtonProps) => {
+  const initialState =
+    recognitionType === "likes"
+      ? post.likes
+      : post.recognitions[recognitionType];
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const [recognitionUsers, setRecognitionUsers] = useState(users);
+  const [count, setCount] = useState(initialState.count);
+  const [isActive, setIsActive] = useState(initialState.byMe);
   const { user } = useUserContext();
 
   const handleClickButton = async () => {
     if (!user?._id) return;
     setButtonDisabled(true);
-    const res = await addOrRemoveRecognition({ postId:post._id, recognitionType });
-    setButtonDisabled(false);
-
-    if (res.success) {
-      setRecognitionUsers((prev) => {
-        const copy = [...prev];
-        const index = copy.findIndex((id) => id === user._id);
-        if (index < 0) copy.push(user._id);
-        else copy.splice(index, 1);
-        return copy;
-      });
+    try {
+      const res = await addOrRemoveRecognition({ postId: post._id, recognitionType });
+      if (res.success) {
+        setCount((currentCount) => currentCount + (isActive ? -1 : 1));
+        setIsActive(!isActive);
+      }
+    } finally {
+      setButtonDisabled(false);
     }
   };
 
   const Icon = icons[recognitionType];
-  const isActive = user !== null && recognitionUsers.includes(user._id) ;
   return (
     <button
       className={`flex gap-2 items-center p-1 rounded-lg  transition-colors
-        ${solveButtonStyle(isActive, buttonDisabled || user?._id === post.authorId)}`}
+        ${solveButtonStyle(isActive, buttonDisabled || post.isMine)}`}
       onClick={handleClickButton}
-      disabled={buttonDisabled || user?._id === post.authorId}
+      disabled={buttonDisabled || post.isMine}
+      aria-pressed={isActive}
       title={recognitionLabels[recognitionType]}
     >
       <Icon />
-      {recognitionUsers.length}
+      {count}
     </button>
   );
 };

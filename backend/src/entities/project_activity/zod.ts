@@ -13,6 +13,9 @@ const activitySchema = z.discriminatedUnion("type", [
     type: z.literal("vote"),
     details: z.string().trim().min(1).max(2000),
     options: z.array(z.string().trim().min(1).max(200)).min(2).max(20),
+    closesAt: z.coerce
+      .date()
+      .refine((date) => date.getTime() > Date.now(), "La fecha de cierre debe ser futura"),
   }),
   z.object({
     type: z.literal("ticket"),
@@ -30,35 +33,12 @@ const voteSchema = z.object({
   option: z.string().trim().min(1).max(200),
 });
 
-export const validateBodyAddActivity = async (body: object) => {
-  try {
-    return await activitySchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return error.issues.map((issue) => issue.message).join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
+export const ProjectActivitySchemas = {
+  addActivity: activitySchema,
+  addDiscussionMessage: discussionMessageSchema,
+  addVote: voteSchema,
 };
 
-export const validateBodyAddDiscussionMessage = async (body: object) => {
-  try {
-    return await discussionMessageSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return error.issues.map((issue) => issue.message).join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
-
-export const validateBodyAddVote = async (body: object) => {
-  try {
-    return await voteSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return error.issues.map((issue) => issue.message).join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+export type AddActivityBody = z.output<typeof activitySchema>;
+export type AddDiscussionMessageBody = z.output<typeof discussionMessageSchema>;
+export type AddVoteBody = z.output<typeof voteSchema>;

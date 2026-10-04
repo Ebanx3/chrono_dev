@@ -42,38 +42,44 @@ const updateUserSchema = z.object({
   urlAvatar: z.string().url("La URL del avatar debe ser una URL válida").optional(),
 });
 
-export const validateBodyRegister = async (body: object) => {
-  try {
-    return await registerSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+export const AuthSchemas = { registerSchema, loginSchema, updateUserSchema };
 
-export const validateBodyLogin = async (body: object) => {
-  try {
-    return await loginSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+export type RegisterBody = z.output<typeof registerSchema>;
+export type LoginBody = z.output<typeof loginSchema>;
+export type UpdateUserBody = z.output<typeof updateUserSchema>;
 
-export const validateBodyUpdateUser = async (body: object) => {
-  try {
-    return await updateUserSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+// export const validateBodyRegister = async (body: object) => {
+//   try {
+//     return await registerSchema.parseAsync(body);
+//   } catch (error) {
+//     if (error instanceof z.ZodError) {
+//       const messages = error.issues.map((issue) => issue.message);
+//       return messages.join("\n");
+//     }
+//     return "Error inesperado al validar los campos.";
+//   }
+// };
+
+// export const validateBodyLogin = async (body: object) => {
+//   try {
+//     return await loginSchema.parseAsync(body);
+//   } catch (error) {
+//     if (error instanceof z.ZodError) {
+//       const messages = error.issues.map((issue) => issue.message);
+//       return messages.join("\n");
+//     }
+//     return "Error inesperado al validar los campos.";
+//   }
+// };
+
+// export const validateBodyUpdateUser = async (body: object) => {
+//   try {
+//     return await updateUserSchema.parseAsync(body);
+//   } catch (error) {
+//     if (error instanceof z.ZodError) {
+//       const messages = error.issues.map((issue) => issue.message);
+//       return messages.join("\n");
+//     }
+//     return "Error inesperado al validar los campos.";
+//   }
+// };

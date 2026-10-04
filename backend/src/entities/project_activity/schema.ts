@@ -5,6 +5,7 @@ export interface Vote {
   details: string;
   options: string[];
   votes: { userId: Types.ObjectId; option: string }[];
+  closesAt?: Date;
   status: "open" | "closed";
 }
 
@@ -75,6 +76,7 @@ const voteSchema = new Schema<Vote>(
       ],
       default: [],
     },
+    closesAt: { type: Date },
     status: {
       type: String,
       enum: ["open", "closed"],

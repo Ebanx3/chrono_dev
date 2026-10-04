@@ -3,7 +3,7 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 type UpdatableUserFields = {
   title?: string;
     description?: string;
-    links?: Link[];
+    links?: UserLink[];
     stack?: string[];
 };
 
@@ -18,7 +18,7 @@ export const updateUser = async ({
       headers: { "content-type": "application/json" },
       credentials: "include",
       method: "PATCH",
-      body: JSON.stringify({ title, description, links: links?.map(link=> ({site:link.name, link:link.url})), stack }),
+      body: JSON.stringify({ title, description, links, stack }),
     });
     const json = (await data.json()) as ServerResponse<User>;
     return json;

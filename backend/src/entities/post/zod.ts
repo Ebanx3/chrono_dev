@@ -1,4 +1,4 @@
-import {z} from "zod/v4";
+import { z } from "zod/v4";
 
 const createPostSchema = z.object({
   title: z
@@ -22,14 +22,6 @@ const createPostSchema = z.object({
     .optional().default([])
 });
 
-export const validateBodyCreatePost = async (body: object) => {
-  try {
-    return await createPostSchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+export const PostSchemas = { createPostSchema };
+
+export type CreatePostBody = z.output<typeof createPostSchema>;

@@ -16,11 +16,20 @@ const createProjectSchema = z.object({
       z
         .string()
         .min(2, "Cada tecnología debe tener al menos 2 caracteres")
-        .max(30, "Cada tecnología no puede superar los 30 caracteres")
+        .max(30, "Cada tecnología no puede superar los 30 caracteres"),
     )
     .min(1, "Debes especificar al menos una tecnología")
     .max(20, "No puedes agregar más de 20 tecnologías"),
-
+  areas: z
+    .array(
+      z
+        .string("Cada área debe ser un texto válido")
+        .trim()
+        .min(1, "Cada área no puede estar vacía")
+        .max(60, "Cada área no puede superar los 60 caracteres"),
+    )
+    .min(1, "Debes especificar al menos un área para el proyecto")
+    .max(20, "No puedes agregar más de 20 áreas"),
   isPublic: z.boolean().default(true), // por defecto los proyectos son públicos
 });
 

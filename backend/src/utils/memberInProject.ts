@@ -18,24 +18,6 @@ export const pendingMemberInProject = (
   );
 };
 
-// export const hasPermission = ({
-//   project,
-//   userId,
-//   permission,
-// }: {
-//   project: IProject;
-//   userId?: ObjectId;
-//   permission: Permission;
-// }): boolean => {
-//   if (!userId) return false;
-//   const index = project.members.findIndex(
-//     (member) => member.user._id.toString() === userId.toString(),
-//   );
-//   if (index < 0) return false;
-
-//   return Boolean(project.members[index].permissions?.includes(permission));
-// };
-
 export const hasPermission = ({
   project,
   userId,
@@ -66,6 +48,7 @@ export const projectWithUserFlags = (project: IProject, userId?: ObjectId) => {
 
   const iAmMember = memberInProject(project, userId);
   const iAmPendingMember = pendingMemberInProject(project, userId);
+  const iAmFounder = userId && project.founder._id.toString() === userId.toString();
 
   const permissionFlags = Object.values(Permission).reduce<
     Record<string, boolean>
@@ -77,6 +60,7 @@ export const projectWithUserFlags = (project: IProject, userId?: ObjectId) => {
   return {
     ...projectObject,
     iAmMember,
+    iAmFounder,
     iAmPendingMember,
     permissions: { ...permissionFlags },
   };

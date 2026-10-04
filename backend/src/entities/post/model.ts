@@ -11,57 +11,40 @@ const create = async ({
   content: string;
   tags:string[]
 }) => {
-  try {
-    const newPost = new Post({ author, title, content,tags });
-    return await newPost.save();
-  } catch (error) {
-    console.error("Error al crear una nueva publicacion:", error);
-    return "Error inesperado al crear la publicacion";
-  }
+  const newPost = new Post({ author, title, content, tags });
+  return newPost.save();
 };
 
 const getPosts = async () => {
-  try {
-    return await Post.find().populate("author", "username").sort({ createdAt: -1 });
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return Post.find().populate("author", "username").sort({ createdAt: -1 });
 };
 
 const getPostById = async (postId:string) => {
-  try {
-    return await Post.findById(postId).populate("author", "username");
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return Post.findById(postId).populate("author", "username");
+}
+
+const getPostsByUserId = async (userId:string) => {
+  return Post.find({ author: userId }).populate("author", "username").sort({ createdAt: -1 });
 }
 
 export type RecognitionType = "documentation" | "inspiration" | "innovation" | "resolution" | "mentorship" | "likes"
 
 const addOrRemoveRecognition = async ({recognitionType, postId, userId}:{ recognitionType: RecognitionType ,postId:string, userId:string}) => {
-  try {
-    const post = await Post.findById(postId);
-    if(!post) return "No se encontró la publicación";
+  const post = await Post.findById(postId);
+  if (!post) return null;
 
-    const field = `${recognitionType}_received` as keyof typeof post;
-    const arr = post[field] as string[];
+  const field = `${recognitionType}_received` as keyof typeof post;
+  const arr = post[field] as string[];
 
-    const index = arr.findIndex(uId => uId === userId);
+  const index = arr.findIndex(uId => uId === userId);
 
-    if(index < 0) {
-      arr.push(userId);
-    }
-    else{
-      arr.splice(index, 1)
-    }
-
-    return (await post.save()).toJSON()
-  } catch (error) {
-    console.error("Error al crear una nueva publicacion:", error);
-    return "Error inesperado al crear la publicacion";
+  if (index < 0) {
+    arr.push(userId);
+  } else {
+    arr.splice(index, 1);
   }
+
+  return (await post.save()).toJSON();
 }
 
-export const PostModel = { create, getPosts, getPostById, addOrRemoveRecognition };
+export const PostModel = { create, getPosts, getPostById, addOrRemoveRecognition, getPostsByUserId };

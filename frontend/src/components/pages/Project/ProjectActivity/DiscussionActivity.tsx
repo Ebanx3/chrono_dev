@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { addDiscussionMessage } from "../../../api/project";
+import { addDiscussionMessage } from "../../../../api/project";
 
 export const DiscussionActivity = ({
   activityId,

@@ -17,6 +17,7 @@ export const CreateProjectModal = ({
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [techs, setTechs] = useState("");
+  const [areas, setAreas] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const nav = useNavigate();
@@ -29,6 +30,10 @@ export const CreateProjectModal = ({
       details,
       isPublic: !isPrivate,
       techs: techs
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== ""),
+      areas: areas
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag !== ""),
@@ -85,8 +90,17 @@ export const CreateProjectModal = ({
           inputValue={techs}
           setInputValue={setTechs}
         />
+        <FormInput
+          label="Areas"
+          name="areas"
+          type="text"
+          placeholder="Frontend, Backend, diseño, testing..."
+          helpIconContent="Ingresa areas separadas por comas"
+          inputValue={areas}
+          setInputValue={setAreas}
+        />
         <label
-            htmlFor="isPrivate"
+          htmlFor="isPrivate"
           className="text-slate-400 font-medium text-sm flex justify-between items-center mb-4"
         >
           <span className="flex gap-3 items-center">

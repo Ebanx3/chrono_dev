@@ -6,6 +6,7 @@ import {
   TicketsActivity,
   Vote,
 } from "./schema";
+import { HttpError } from "../../utils/httpError";
 
 const createItem = ({
   type,
@@ -45,7 +46,7 @@ const createItem = ({
         ticketActivity,
       };
     default:
-      break;
+      throw new HttpError(400, "Tipo de actividad no válido");
   }
 };
 
@@ -64,36 +65,27 @@ const addActivityItem = async ({
   ticketActivity?: TicketsActivity;
   author:string
 }) => {
-  try {
-    const newActivityItem = new ActivityItem(
-      createItem({
-        type,
-        discussion,
-        vote,
-        ticketActivity,
-        author,
-        projectId
-      }),
-    );
+  const newActivityItem = new ActivityItem(
+    createItem({
+      type,
+      discussion,
+      vote,
+      ticketActivity,
+      author,
+      projectId,
+    }),
+  );
 
-    return await newActivityItem.save();
-  } catch (error) {
-    console.error("Error al crear una nueva actividad:", error);
-    return "Error inesperado al crear la actividad";
-  }
+  return newActivityItem.save();
 };
 
 const getProjectActivity = async (projectId:string) => {
-  try {
-    return await ActivityItem.find({ projectId })
-      .populate("author", "username")
-      .populate("discussion.author", "username")
-      .populate("discussion.messages.author", "username")
-      .populate("ticketActivity.assignedTo", "username");
-  } catch (error) {
-    console.error("Error al obtener la actividad del proyecto:", error);
-    return "Error al obtener la actividad del proyecto";
-  }
+  return ActivityItem.find({ projectId })
+    .sort({ createdAt: -1 })
+    .populate("author", "username")
+    .populate("discussion.author", "username")
+    .populate("discussion.messages.author", "username")
+    .populate("ticketActivity.assignedTo", "username");
 }
 
 const addDiscussionMessage = async ({
@@ -107,23 +99,22 @@ const addDiscussionMessage = async ({
   content: string;
   author: Types.ObjectId;
 }) => {
-  try {
-    const activity = await ActivityItem.findOneAndUpdate(
-      {
-        _id: activityId,
-        projectId,
-        type: "discussion",
-        "discussion.status": "open",
-      },
-      { $push: { "discussion.messages": { content, author } } },
-      { new: true, runValidators: true },
-    );
+  const activity = await ActivityItem.findOneAndUpdate(
+    {
+      _id: activityId,
+      projectId,
+      type: "discussion",
+      "discussion.status": "open",
+    },
+    { $push: { "discussion.messages": { content, author } } },
+    { new: true, runValidators: true },
+  );
 
-    return activity ?? "Discusión no encontrada o cerrada";
-  } catch (error) {
-    console.error("Error al agregar el mensaje a la discusión:", error);
-    return "Error inesperado al agregar el mensaje";
+  if (!activity) {
+    throw new HttpError(404, "Discusión no encontrada o cerrada");
   }
+
+  return activity;
 };
 
 const addVote = async ({
@@ -137,25 +128,31 @@ const addVote = async ({
   option: string;
   userId: Types.ObjectId;
 }) => {
-  try {
-    const activity = await ActivityItem.findOneAndUpdate(
-      {
-        _id: activityId,
-        projectId,
-        type: "vote",
-        "vote.status": "open",
-        "vote.options": option,
-        "vote.votes.userId": { $ne: userId },
-      },
-      { $push: { "vote.votes": { userId, option } } },
-      { new: true, runValidators: true },
-    );
+  const activity = await ActivityItem.findOneAndUpdate(
+    {
+      _id: activityId,
+      projectId,
+      type: "vote",
+      "vote.status": "open",
+      "vote.options": option,
+      "vote.votes.userId": { $ne: userId },
+      $or: [
+        { "vote.closesAt": { $exists: false } },
+        { "vote.closesAt": { $gt: new Date() } },
+      ],
+    },
+    { $push: { "vote.votes": { userId, option } } },
+    { new: true, runValidators: true },
+  );
 
-    return activity ?? "Votación no encontrada, cerrada o ya respondida";
-  } catch (error) {
-    console.error("Error al agregar el voto:", error);
-    return "Error inesperado al agregar el voto";
+  if (!activity) {
+    throw new HttpError(
+      409,
+      "Votación no encontrada, cerrada, vencida o ya respondida",
+    );
   }
+
+  return activity;
 };
 
 export const ProjectActivityModel = {

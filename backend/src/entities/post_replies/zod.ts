@@ -7,14 +7,6 @@ const createPostReplySchema = z.object({
     .max(500, "El contenido no puede superar los 500 caracteres"),
 });
 
-export const validateBodyCreatePostReply = async (body: object) => {
-  try {
-    return await createPostReplySchema.parseAsync(body);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const messages = error.issues.map((issue) => issue.message);
-      return messages.join("\n");
-    }
-    return "Error inesperado al validar los campos.";
-  }
-};
+export const PostReplySchemas = { createPostReplySchema };
+
+export type CreatePostReplyBody = z.output<typeof createPostReplySchema>;

@@ -1,9 +1,10 @@
 import { model, Schema, Types } from "mongoose";
 import { Project } from "../project/schema";
 
-interface ITicket {
+export interface ITicket {
   title: string;
   ticketId: number;
+  area: string;
   description: string;
   durationDays: number;
   status: "available" | "requested" | "in-progress" | "done";
@@ -16,6 +17,7 @@ const ticketSchema = new Schema<ITicket>(
   {
     title: { type: String, required: true },
     ticketId: { type: Number, required: true },
+    area: { type: String, required: true, trim: true, maxlength: 60 },
     description: { type: String },
     durationDays: { type: Number, required: true, min: 1 },
     status: {

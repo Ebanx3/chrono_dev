@@ -1,7 +1,17 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { ProjectResources } from "./ProjectResources";
+import { ProjectSettingsModal } from "./ProjectSettingsModal";
 
-export const ProjectDetails = ({ project }: { project: ProjectWithUserFlags }) => {
+export const ProjectDetails = ({
+  project,
+  refetchProject,
+}: {
+  project: ProjectWithUserFlags;
+  refetchProject: () => void;
+}) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <div className="flex flex-col gap-4 w-3/4">
       <div className="flex items-center gap-4">
@@ -11,6 +21,15 @@ export const ProjectDetails = ({ project }: { project: ProjectWithUserFlags }) =
         >
           {project.isPublic ? "Público" : "Privado"}
         </span>
+        {project.iAmFounder && (
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(true)}
+            className="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-slate-100"
+          >
+            Ajustes
+          </button>
+        )}
       </div>
       <div className="flex flex-col">
         <span className="text-slate-400 text-sm">
@@ -42,6 +61,13 @@ export const ProjectDetails = ({ project }: { project: ProjectWithUserFlags }) =
         ))}
       </div>
       <ProjectResources resources={project.resources} projectId={project._id} canAddResources={project.permissions["project.resources.add"]}/>
+      {isSettingsOpen && (
+        <ProjectSettingsModal
+          project={project}
+          closeModal={() => setIsSettingsOpen(false)}
+          refetchProject={refetchProject}
+        />
+      )}
     </div>
   );
 };

@@ -1,256 +1,128 @@
 import { Response } from "express";
 import { Types } from "mongoose";
 import { RequestWithData, ServerResponse } from "../../types";
-import { hasPermission, memberInProject } from "../../utils/memberInProject";
-import { Permission } from "../project/schema";
+import { HttpError } from "../../utils/httpError";
+import { memberInProject } from "../../utils/memberInProject";
 import { ProjectModel } from "../project/model";
 import { ProjectActivityModel } from "./model";
-import {
-  validateBodyAddActivity,
-  validateBodyAddDiscussionMessage,
-  validateBodyAddVote,
+import type {
+  AddActivityBody,
+  AddDiscussionMessageBody,
+  AddVoteBody,
 } from "./zod";
 
 const addActivity = async (
-  req: RequestWithData,
+  req: RequestWithData<AddActivityBody>,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId } = req.params;
-    const validatedBody = await validateBodyAddActivity(req.body);
-    if (typeof validatedBody === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: validatedBody, isLoggedIn: true });
-      return;
-    }
+  const { projectId } = req.params;
+  const { type } = req.body;
+  const result = await ProjectActivityModel.addActivityItem({
+    projectId,
+    type,
+    discussion:
+      type === "discussion"
+        ? {
+            title: req.body.title,
+            content: req.body.content,
+            author: new Types.ObjectId(String(req.user!.id)),
+            status: "open",
+          }
+        : undefined,
+    vote:
+      type === "vote"
+        ? {
+            details: req.body.details,
+            options: req.body.options,
+            votes: [],
+            closesAt: req.body.closesAt,
+            status: "open",
+          }
+        : undefined,
+    ticketActivity:
+      type === "ticket"
+        ? {
+            ticketId: new Types.ObjectId(req.body.ticketId),
+            action: req.body.action,
+            timestamp: new Date(),
+            user: { userId: new Types.ObjectId(String(req.user!.id)) },
+            assignedTo: req.body.assignedTo
+              ? { userId: new Types.ObjectId(req.body.assignedTo) }
+              : undefined,
+          }
+        : undefined,
+    author: req.user!.id,
+  });
 
-    const project = await ProjectModel.getById(projectId);
-    if (!project || typeof project === "string") {
-      res
-        .status(404)
-        .json({
-          success: false,
-          message: "Proyecto no encontrado",
-          isLoggedIn: true,
-        });
-      return;
-    }
-    if (
-      !hasPermission({
-        project,
-        userId: req.user!.id,
-        permission: Permission.ActivityAdd,
-      })
-    ) {
-      res
-        .status(403)
-        .json({
-          success: false,
-          message: "No tienes permisos para realizar esta acción",
-          isLoggedIn: true,
-        });
-      return;
-    }
-
-    const { type } = validatedBody;
-    const result = await ProjectActivityModel.addActivityItem({
-      projectId,
-      type,
-      discussion:
-        type === "discussion"
-          ? {
-              title: validatedBody.title,
-              content: validatedBody.content,
-              author: new Types.ObjectId(req.user!.id),
-              status: "open",
-            }
-          : undefined,
-      vote:
-        type === "vote"
-          ? {
-              details: validatedBody.details,
-              options: validatedBody.options,
-              votes: [],
-              status: "open",
-            }
-          : undefined,
-      ticketActivity:
-        type === "ticket"
-          ? {
-              ticketId: new Types.ObjectId(validatedBody.ticketId),
-              action: validatedBody.action,
-              timestamp: new Date(),
-              user: { userId: new Types.ObjectId(String(req.user!.id)) },
-              assignedTo: validatedBody.assignedTo
-                ? { userId: new Types.ObjectId(validatedBody.assignedTo) }
-                : undefined,
-            }
-          : undefined,
-      author: req.user!.id,
-    });
-
-    if (typeof result === "string") {
-      res
-        .status(400)
-        .json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Actividad agregada correctamente",
-        data: result,
-        isLoggedIn: true,
-      });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error del servidor",
-        isLoggedIn: true,
-      });
-  }
+  res.status(201).json({
+    success: true,
+    message: "Actividad agregada correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const addDiscussionMessage = async (
-  req: RequestWithData,
+  req: RequestWithData<AddDiscussionMessageBody>,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId, activityId } = req.params;
-    const validatedBody = await validateBodyAddDiscussionMessage(req.body);
-    if (typeof validatedBody === "string") {
-      res.status(400).json({ success: false, message: validatedBody, isLoggedIn: true });
-      return;
-    }
+  const { projectId, activityId } = req.params;
+  const result = await ProjectActivityModel.addDiscussionMessage({
+    projectId,
+    activityId,
+    content: req.body.content,
+    author: new Types.ObjectId(String(req.user!.id)),
+  });
 
-    const project = await ProjectModel.getById(projectId);
-    if (!project || typeof project === "string") {
-      res.status(404).json({ success: false, message: "Proyecto no encontrado", isLoggedIn: true });
-      return;
-    }
-    if (!memberInProject(project, req.user!.id)) {
-      res.status(403).json({ success: false, message: "Debes ser miembro del proyecto", isLoggedIn: true });
-      return;
-    }
-
-    const result = await ProjectActivityModel.addDiscussionMessage({
-      projectId,
-      activityId,
-      content: validatedBody.content,
-      author: new Types.ObjectId(String(req.user!.id)),
-    });
-    if (typeof result === "string") {
-      res.status(404).json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-    res.status(201).json({ success: true, message: "Mensaje agregado correctamente", data: result, isLoggedIn: true });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(201).json({
+    success: true,
+    message: "Mensaje agregado correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const addVote = async (
-  req: RequestWithData,
+  req: RequestWithData<AddVoteBody>,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId, activityId } = req.params;
-    const validatedBody = await validateBodyAddVote(req.body);
-    if (typeof validatedBody === "string") {
-      res.status(400).json({ success: false, message: validatedBody, isLoggedIn: true });
-      return;
-    }
+  const { projectId, activityId } = req.params;
+  const result = await ProjectActivityModel.addVote({
+    projectId,
+    activityId,
+    option: req.body.option,
+    userId: new Types.ObjectId(String(req.user!.id)),
+  });
 
-    const project = await ProjectModel.getById(projectId);
-    if (!project || typeof project === "string") {
-      res.status(404).json({ success: false, message: "Proyecto no encontrado", isLoggedIn: true });
-      return;
-    }
-    if (!memberInProject(project, req.user!.id)) {
-      res.status(403).json({ success: false, message: "Debes ser miembro del proyecto", isLoggedIn: true });
-      return;
-    }
-
-    const result = await ProjectActivityModel.addVote({
-      projectId,
-      activityId,
-      option: validatedBody.option,
-      userId: new Types.ObjectId(String(req.user!.id)),
-    });
-    if (typeof result === "string") {
-      res.status(400).json({ success: false, message: result, isLoggedIn: true });
-      return;
-    }
-    res.status(201).json({ success: true, message: "Voto agregado correctamente", data: result, isLoggedIn: true });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Error del servidor", isLoggedIn: true });
-  }
+  res.status(201).json({
+    success: true,
+    message: "Voto agregado correctamente",
+    data: result,
+    isLoggedIn: true,
+  });
 };
 
 const getActivity = async (
   req: RequestWithData,
   res: Response<ServerResponse>,
 ) => {
-  try {
-    const { projectId } = req.params;
-    const project = await ProjectModel.getById(projectId);
-    if (!project || typeof project === "string") {
-      res
-        .status(404)
-        .json({
-          success: false,
-          message: "Proyecto no encontrado",
-          isLoggedIn: !!req.user,
-        });
-      return;
-    }
-    if (!project.isPublic && !memberInProject(project, req.user?.id)) {
-      res
-        .status(403)
-        .json({
-          success: false,
-          message: "Proyecto privado",
-          isLoggedIn: !!req.user,
-        });
-      return;
-    }
-
-    const result = await ProjectActivityModel.getProjectActivity(projectId);
-    if (!result || typeof result === "string") {
-      res
-        .status(404)
-        .json({
-          success: false,
-          message: "Actividad del proyecto no encontrada",
-          isLoggedIn: !!req.user,
-        });
-      return;
-    }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Actividad obtenida correctamente",
-        data: result,
-        isLoggedIn: !!req.user,
-      });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error del servidor",
-        isLoggedIn: !!req.user,
-      });
+  const { projectId } = req.params;
+  const project = await ProjectModel.getById(projectId);
+  if (!project) {
+    throw new HttpError(404, "Proyecto no encontrado");
   }
+
+  if (!project.isPublic && !memberInProject(project, req.user?.id)) {
+    throw new HttpError(403, "Proyecto privado");
+  }
+
+  const result = await ProjectActivityModel.getProjectActivity(projectId);
+  res.status(200).json({
+    success: true,
+    message: "Actividad obtenida correctamente",
+    data: result,
+    isLoggedIn: Boolean(req.user),
+  });
 };
 
 export const ProjectActivityController = {

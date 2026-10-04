@@ -1,6 +1,42 @@
 import User, { PostStatKey } from "./schema";
+import { Types } from "mongoose";
 import { hashPassword } from "../../services/encryptPass";
 import { randomBytes } from "node:crypto";
+import { HttpError } from "../../utils/httpError";
+
+export class UserAlreadyExistsError extends HttpError {
+  constructor(public readonly field: "email" | "username") {
+    super(409, field === "email" ? "Email ya en uso" : "Username ya en uso");
+    this.name = "UserAlreadyExistsError";
+  }
+}
+
+const getDuplicateUserField = (
+  error: unknown,
+): "email" | "username" | null => {
+  if (
+    typeof error !== "object" ||
+    error === null ||
+    !("code" in error) ||
+    error.code !== 11000
+  ) {
+    return null;
+  }
+
+  const duplicateError = error as {
+    keyPattern?: Partial<Record<"email" | "username", unknown>>;
+    keyValue?: Partial<Record<"email" | "username", unknown>>;
+  };
+
+  if (duplicateError.keyPattern?.email || duplicateError.keyValue?.email) {
+    return "email";
+  }
+  if (duplicateError.keyPattern?.username || duplicateError.keyValue?.username) {
+    return "username";
+  }
+
+  return null;
+};
 
 const create = async ({
   email,
@@ -11,71 +47,86 @@ const create = async ({
   username: string;
   password: string;
 }) => {
-  try {
-    const hashedPassword = await hashPassword(password);
-    const newUser = new User({
-      email,
-      username,
-      password: hashedPassword,
-      verificationEmailCode: randomBytes(6).toString("hex"),
-    });
-    await newUser.save();
-    return { verifificationEmailCode: newUser.verificationEmailCode as string };
-  } catch (error: any) {
-    if (error.code === 11000 && error.keyPattern) {
-      if (error.keyPattern.email) return "Email ya en uso";
-      if (error.keyPattern.username) return "Username ya en uso";
-    }
+  const hashedPassword = await hashPassword(password);
+  const newUser = new User({
+    email,
+    username,
+    password: hashedPassword,
+    verificationEmailCode: randomBytes(6).toString("hex"),
+  });
 
-    console.error("Error al crear usuario:", error);
-    return "Error inesperado al crear el usuario";
+  try {
+    await newUser.save();
+  } catch (error) {
+    const duplicateField = getDuplicateUserField(error);
+    if (duplicateField) {
+      throw new UserAlreadyExistsError(duplicateField);
+    }
+    throw error;
   }
+
+  return { verifificationEmailCode: newUser.verificationEmailCode as string };
 };
 
 const getUserByUsername = async (username: string) => {
-  try {
-    return await User.findOne({ username: new RegExp(`^${username}$`, "i") });
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return User.findOne({ username: new RegExp(`^${username}$`, "i") });
 };
 
 const getUserById = async (userId: string) => {
-  try {
-    return await User.findOne({ _id: userId });
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return User.findOne({ _id: userId });
 };
 
 const getUsers = async () => {
-  try {
-    return await User.find();
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return User.find();
 };
 
 type UpdateData = {
   title?: string;
   description?: string;
+  urlAvatar?: string;
   links?: Array<{ site: string; link: string }>;
   stack?: string[];
 };
 
 const updateUser = async (userId: string, updateData: UpdateData) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-      new: true,
-    });
-    return updatedUser;
-  } catch (error) {
-    console.log(error);
-    return "Error al actualizar el usuario";
+  return User.findByIdAndUpdate(userId, updateData, { new: true });
+};
+
+const followUser = async ({
+  followerId,
+  followedId,
+}: {
+  followerId: string;
+  followedId: string;
+}) => {
+  if (!Types.ObjectId.isValid(followedId)) {
+    throw new HttpError(400, "El identificador del usuario no es válido");
   }
+  if (followerId === followedId) {
+    throw new HttpError(400, "No puedes seguirte a ti mismo");
+  }
+
+  const followedUser = await User.findByIdAndUpdate(
+    followedId,
+    { $addToSet: { followers: new Types.ObjectId(followerId) } },
+    { new: true },
+  ).select("_id");
+
+  if (!followedUser) {
+    throw new HttpError(404, "Usuario no encontrado");
+  }
+
+  const followerUser = await User.findByIdAndUpdate(
+    followerId,
+    { $addToSet: { users_following: followedUser._id } },
+    { new: true },
+  ).select("_id");
+
+  if (!followerUser) {
+    throw new HttpError(404, "Usuario autenticado no encontrado");
+  }
+
+  return followedUser;
 };
 
 const addNewPostToUser = async ({
@@ -87,22 +138,15 @@ const addNewPostToUser = async ({
   postId: string;
   postTitle: string;
 }) => {
-  try {
-    const updateData = {
-      $push: { posts: { id: postId, title: postTitle } },
-      $inc: { "postsStats.created": 1 },
-    };
+  const updateData = {
+    $push: { posts: { id: postId, title: postTitle } },
+    $inc: { "postsStats.created": 1 },
+  };
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-      new: true,       // devuelve el documento actualizado
-      upsert: false,   // no crea el usuario si no existe
-    });
-
-    return updatedUser;
-  } catch (error) {
-    console.error(error);
-    return "Error al actualizar el usuario";
-  }
+  return User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    upsert: false,
+  });
 };
 
 const addNewProjectToUser = async ({
@@ -114,22 +158,15 @@ const addNewProjectToUser = async ({
   projectId: string;
   projectName: string;
 }) => {
-  try {
-    const updateData = {
-      $push: { posts: { id: projectId, name: projectName } },
-      $inc: { "projectsStats.created": 1 },
-    };
+  const updateData = {
+    $push: { posts: { id: projectId, name: projectName } },
+    $inc: { "projectsStats.created": 1 },
+  };
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-      new: true,       // devuelve el documento actualizado
-      upsert: false,   // no crea el usuario si no existe
-    });
-
-    return updatedUser;
-  } catch (error) {
-    console.error(error);
-    return "Error al actualizar el usuario";
-  }
+  return User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    upsert: false,
+  });
 };
 
 const increasePostField = async ({
@@ -141,19 +178,11 @@ const increasePostField = async ({
   fieldToIncrease: PostStatKey;
   amount?: number;
 }) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $inc: { [`postsStats.${fieldToIncrease}`]: amount } },
-      {
-        new: true,
-      }
-    );
-    return updatedUser;
-  } catch (error) {
-    console.log(error);
-    return "Error al actualizar el usuario";
-  }
+  return User.findByIdAndUpdate(
+    userId,
+    { $inc: { [`postsStats.${fieldToIncrease}`]: amount } },
+    { new: true },
+  );
 };
 
 export const UserModel = {
@@ -162,6 +191,7 @@ export const UserModel = {
   getUserByUsername,
   getUsers,
   updateUser,
+  followUser,
   increasePostField,
   addNewPostToUser,
   addNewProjectToUser

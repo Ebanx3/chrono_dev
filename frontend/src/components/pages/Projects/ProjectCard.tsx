@@ -8,7 +8,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [joinRequested, setJoinRequested] = useState(project.iAmPendingMember);
   const [iAmMember, setIAmMember] = useState(project.iAmMember);
-  const {user} = useUserContext();
+  const { user } = useUserContext();
 
   const handleJoinAsMember = async () => {
     const res = await joinAsMember(project._id);
@@ -70,7 +70,9 @@ export const ProjectCard = ({ project }: { project: Project }) => {
 
       <div
         className={`grid transition-all duration-300 ease-in-out ${
-          isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          isExpanded
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
         }`}
       >
         <div className="overflow-hidden">
@@ -99,18 +101,27 @@ export const ProjectCard = ({ project }: { project: Project }) => {
                   </Link>
                 )}
 
-                {!iAmMember && user &&  (
+                {!iAmMember &&
+                  user &&
+                  project.settings.joinMode === "request" && (
+                    <button
+                      type="button"
+                      className={`mt-4 rounded-md bg-purple-700 px-2 py-1 font-medium text-white transition-colors ${!joinRequested && "hover:bg-purple-800"} disabled:cursor-default disabled:opacity-70 text-sm cursor-pointer`}
+                      disabled={joinRequested}
+                      onClick={handleJoinAsPendingMember}
+                    >
+                      {joinRequested ? "Solicitud enviada" : "Solicitar unirse"}
+                    </button>
+                  )}
+
+                {!iAmMember && user && project.settings.joinMode === "open" && (
                   <button
                     type="button"
                     className={`mt-4 rounded-md bg-purple-700 px-2 py-1 font-medium text-white transition-colors ${!joinRequested && "hover:bg-purple-800"} disabled:cursor-default disabled:opacity-70 text-sm cursor-pointer`}
                     disabled={joinRequested}
-                    onClick={() =>
-                      project.isPublic
-                        ? handleJoinAsMember()
-                        : handleJoinAsPendingMember()
-                    }
+                    onClick={handleJoinAsMember}
                   >
-                    {joinRequested ? "Solicitud enviada" : "Solicitar unirse"}
+                    Unirme
                   </button>
                 )}
               </div>

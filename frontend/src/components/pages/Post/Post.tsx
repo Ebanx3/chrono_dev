@@ -47,12 +47,12 @@ export const Post = () => {
           <span className="text-xs text-slate-400">{new Date(data!.createdAt).toLocaleDateString()}</span>
           <p className="mt-10 whitespace-pre-line text-slate-400">{data?.content}</p>
           <div className="self-end flex gap-4">
-            <RecognitionButton post={data!} recognitionType="likes" users={data!.likes_received}/>
-            <RecognitionButton post={data!} recognitionType="documentation" users={data!.documentation_received}/>
-            <RecognitionButton post={data!} recognitionType="innovation" users={data!.innovation_received}/>
-            <RecognitionButton post={data!} recognitionType="mentorship" users={data!.mentorship_received}/>
-            <RecognitionButton post={data!} recognitionType="inspiration" users={data!.inspiration_received}/>
-            <RecognitionButton post={data!} recognitionType="resolution" users={data!.resolution_received}/>
+            <RecognitionButton post={data!} recognitionType="likes" />
+            <RecognitionButton post={data!} recognitionType="documentation" />
+            <RecognitionButton post={data!} recognitionType="innovation" />
+            <RecognitionButton post={data!} recognitionType="mentorship" />
+            <RecognitionButton post={data!} recognitionType="inspiration" />
+            <RecognitionButton post={data!} recognitionType="resolution" />
           </div>
         </article>
         <PostReplies postId={data!._id} />

@@ -6,6 +6,7 @@ import mainRouter from "./router"
 import { env_variables } from "../config/environment";
 import { showRequest } from "../middlewares/showRequest";
 import { authenticate } from "../middlewares/authenticate";
+import { errorHandler } from "../middlewares/errorHandler";
 
 export const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api", mainRouter)
 app.use((_req,res)=>{
   res.status(404).send("Undefined path.")
 })
+app.use(errorHandler);
 
 export const InitServer = async () => {
   app.listen(env_variables.PORT, ()=> console.log("Server up, listening at port: ",env_variables.PORT))

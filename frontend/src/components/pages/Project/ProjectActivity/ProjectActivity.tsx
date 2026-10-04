@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useFetch } from "../../../hooks/useFetch";
-import { CreateButton } from "../../ui/CreateButton";
+import { useFetch } from "../../../../hooks/useFetch";
+import { CreateButton } from "../../../ui/CreateButton";
 import { AddActivityModal } from "./AddActivityModal";
 import { DiscussionActivity } from "./DiscussionActivity";
 import { TicketActivity } from "./TicketActivity";
@@ -28,7 +28,6 @@ export const ProjectActivity = ({
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-200">Actividad del proyecto</h2>
-          <p className="mt-1 text-sm text-slate-500">Discusiones, votaciones y cambios recientes.</p>
         </div>
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => void refetch()} className="text-sm text-slate-400 hover:text-slate-200">
@@ -45,10 +44,7 @@ export const ProjectActivity = ({
       <div className="space-y-3">
         {data?.map((item) => (
           <article key={item._id} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4">
-            <div className="mb-2 flex items-center justify-between gap-3 text-xs text-slate-500">
-              <span>{item.type === "discussion" ? "Discusión" : item.type === "vote" ? "Votación" : "Ticket"}</span>
-              <time>{new Date(item.createdAt).toLocaleString()}</time>
-            </div>
+              <time className="float-right text-xs text-slate-500">{new Date(item.createdAt).toLocaleString()}</time>
             {item.type === "discussion" && item.discussion && (
               <DiscussionActivity
                 activityId={item._id}

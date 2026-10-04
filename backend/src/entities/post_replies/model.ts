@@ -5,32 +5,22 @@ const createPostReply = async ({
   postId,
   content,
 }: {
-  author: String;
-  postId: String;
-  content: String;
+  author: string;
+  postId: string;
+  content: string;
 }) => {
-  try {
-    const newReplyPost = new PostReplies({
-      author,
-      postId,
-      content,
-    });
-    await newReplyPost.save();
-  } catch (err) {
-    console.error("Error al responder una publicacion: ", err);
-    return "Error inesperado al responder la publicacion";
-  }
+  const newReplyPost = new PostReplies({
+    author,
+    postId,
+    content,
+  });
+  return newReplyPost.save();
 };
 
 const getPostReplies = async (postId: string) => {
-  try {
-    return await PostReplies.find({ postId }).populate("author", "username").sort({
+  return PostReplies.find({ postId }).populate("author", "username").sort({
       createdAt: -1,
     });
-  } catch (err) {
-    console.log(err);
-    return null;
-  }
 };
 
 export const ReplyPostModel = { createPostReply, getPostReplies };
